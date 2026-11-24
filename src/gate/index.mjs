@@ -34,7 +34,12 @@ export function decide({ a, b, k, n, tasks }) {
   rates("a", a);
   rates("b", b);
   if (!posInt(n) || !posInt(k) || k > n) throw new Error("gate: need positive integers k <= n");
-  if (a.length === 0 || b.length === 0) throw new Error("gate: a and b each need at least one repeat");
+  if (!posInt(tasks)) throw new Error("gate: band needs tasks, a positive integer (the width floor is 1 / tasks)");
+  // Too few repeats, none included, is a refusal (contracts/eval.md rule 1; SL-P3c-r1-C3).
+  if (a.length === 0 || b.length === 0) {
+    const bd = a.length ? band(a, { tasks }) : { lo: null, hi: null, width: 1 / tasks, n: 0, tasks };
+    return { promote: false, gain: null, band: bd, beats: 0, k, n, reason: `refused: need ${n} repeats of each version, have ${a.length} of A and ${b.length} of B` };
+  }
   const bd = band(a, { tasks });
   const gain = mean(b) - mean(a);
   let beats = 0;

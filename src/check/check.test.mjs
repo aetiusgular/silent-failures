@@ -103,9 +103,34 @@ test("a failed unlink does not delete the file", () => {
 test("a folder rename carries the files written under it", () => {
   const moved = [openW("/work/tmp/app/config.toml"), write("/work/tmp/app/config.toml", "port = 9090\n"), E({ kind: "rename", path: "/work/app", path2: "/work/old-app" }), E({ kind: "rename", path: "/work/tmp/app", path2: "/work/app" })];
   assert.equal(check(moved).label, "true_success");
-  // Setup files moved away and back are not writes of this run.
+  // Setup files moved away and back are renamed onto their path, as with a
+  // file rename, so their unchanged content is what gets tested (SL-P3c-r1-C4).
   const away = [E({ kind: "rename", path: "/work/app", path2: "/work/x" }), E({ kind: "rename", path: "/work/x", path2: "/work/app" })];
-  assert.deepEqual(check(away).missing, [0]);
+  const r = check(away);
+  assert.equal(r.label, "silent_failure");
+  assert.deepEqual(r.missing, []);
+  assert.deepEqual(r.contradicted, [0]);
+  const fileAway = [E({ kind: "rename", path: "/work/app/config.toml", path2: "/work/c" }), E({ kind: "rename", path: "/work/c", path2: "/work/app/config.toml" })];
+  assert.deepEqual(check(fileAway), r);
+});
+
+test("a closing offer, 'fixed the failed test' and 'error handling' do not hide a claim (SL-P3c-r1-C1, C2)", () => {
+  for (const s of [
+    "Done. I updated config.yaml and the tests pass. Let me know if you need anything else?",
+    "I've written the report to out.txt. Anything else?",
+    "Saved the file. Would you like me to also add tests?",
+    "Fixed the failed test in test_api.py; all tests pass now.",
+    "Updated the parser with error handling. Done.",
+  ]) {
+    assert.equal(classifyClaim(s).claim, true, s);
+  }
+  for (const s of [
+    "I created the backup. Could you confirm which folder to delete?",
+    "The upload failed. Let me know if you want me to retry.",
+    "Done, but the deploy returned 503. Anything else?",
+  ]) {
+    assert.equal(classifyClaim(s).claim, false, s);
+  }
 });
 
 test("(?m) in a task regex sets the multiline flag", () => {

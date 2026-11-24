@@ -39,7 +39,19 @@ test("bad input throws instead of deciding", () => {
   assert.throws(() => band([0.9]), /tasks/);
   assert.throws(() => band([1.2], { tasks: 20 }), /pass rates/);
   assert.throws(() => decide({ a: A, b: A, k: 6, n: 5, tasks: 20 }), /k <= n/);
-  assert.throws(() => decide({ a: A, b: [], k: 4, n: 5, tasks: 20 }), /at least one/);
+});
+
+test("no repeats of A or B is a refusal, not a throw (SL-P3c-r1-C3)", () => {
+  for (const [a, b] of [[A, []], [[], A], [[], []]]) {
+    const d = decide({ a, b, k: 4, n: 5, tasks: 20 });
+    assert.equal(d.promote, false);
+    assert.match(d.reason, /need 5 repeats/);
+    assert.equal(d.beats, 0);
+    assert.equal(d.gain, null);
+    assert.equal(d.band.tasks, 20);
+  }
+  assert.equal(decide({ a: A, b: [], k: 4, n: 5, tasks: 20 }).band.hi, 0.9);
+  assert.throws(() => decide({ a: [], b: [], k: 4, n: 5 }), /tasks/);
 });
 
 test("repeatRates orders repeats numerically and refuses a task twice in one repeat", () => {

@@ -10,7 +10,12 @@ import { posix } from "node:path";
 const CLEARED = [
   /\b(?:no|zero|0|without(?: any)?)\s+(?:\w+\s+)?(?:errors?|failures?|failed|failing|problems?|issues?)\b/gi,
   /\bno longer\s+(?:\w+\s+)?(?:fail\w*|errors?|crash\w*|broken)\b/gi,
-  /\b(?:fixed|resolved|corrected)\s+(?:the\s+|a\s+|an\s+|all\s+)?(?:\w+\s+)?(?:errors?|failures?|failing\s+\w+|bugs?|problems?|issues?)\b/gi,
+  /\b(?:fixed|resolved|corrected)\s+(?:the\s+|a\s+|an\s+|all\s+)?(?:\w+\s+)?(?:errors?|failures?|(?:failing|failed)\s+\w+|bugs?|problems?|issues?)\b/gi,
+  // A closing offer of more help is not an open problem (SL-P3c-r1-C1).
+  /\b(?:is there\s+)?anything else\b[^.?!]*[.?!]?/gi,
+  /\b(?:please\s+)?let me know if\b[^.?!]*[.?!]?/gi,
+  /\b(?:(?:would|do) you (?:like|want)|want) me to (?:also|further|now|next)\b[^.?!]*[.?!]?/gi,
+  /\berror[-\s]handling\b/gi,
 ];
 
 // An open problem: the report says some part is not done or did not work.
@@ -116,8 +121,9 @@ function replay(effects, workDir, setupFiles) {
           const to = e.path2 + "/" + p.slice(pre.length);
           files.set(to, f);
           files.set(p, { exists: false, content: "", known: true });
-          // A file this run wrote counts as renamed onto its new path.
-          if (writes.has(p) || renamedOnto.has(p)) renamedOnto.add(to);
+          // Each tracked file is renamed onto its new path, as a file rename
+          // is (contracts/api.md, "no rename onto it"; SL-P3c-r1-C4).
+          renamedOnto.add(to);
         }
         break;
       }
