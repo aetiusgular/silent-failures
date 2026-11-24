@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, realpathSync } from "node:fs";
+import { mkdtempSync, rmSync, realpathSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join as joinPath } from "node:path";
 import { createServer } from "node:net";
@@ -252,4 +252,48 @@ test("record() runs a real command under strace", { skip: canTrace ? false : "st
 
 test("record() rejects an empty argv", async () => {
   await assert.rejects(record([]), /argv must be a non-empty array/);
+});
+
+// Review round 1 (reviews/P3a-r1.md).
+
+test("SL-P3a-r1-C2: a CLONE_FILES child's exec does not drop the parent's cloexec fds", () => {
+  const { effects } = parseStrace(
+    lines(
+      L(10, 0.1, `openat(AT_FDCWD, ${q("out.txt")}, O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 3`),
+      L(10, 0.2, "clone(child_stack=NULL, flags=CLONE_FILES|SIGCHLD) = 11"),
+      L(11, 0.3, `execve(${q("/bin/true")}, [${q("true")}], 0x0 /* 0 vars */) = 0`),
+      L(11, 0.4, `write(3, ${q("child")}, 5) = -1 EBADF (Bad file descriptor)`),
+      L(10, 0.5, `write(3, ${q("hi")}, 2) = 2`),
+    ),
+    { cwd: "/w" },
+  );
+  const w = only(effects, "write");
+  assert.equal(w.length, 1, "only the parent's write is on a known fd");
+  assert.deepEqual([w[0].pid, w[0].path, w[0].bytes], [10, "/w/out.txt", "hi"]);
+});
+
+test("SL-P3a-r1-C1: a timeout kills the whole traced tree, not only strace", { skip: canTrace ? false : "strace or ptrace not available here" }, async () => {
+  const dir = realpathSync(mkdtempSync(joinPath(tmpdir(), "sl-rec-test-")));
+  try {
+    const r = await record(["sh", "-c", "sleep 2; echo late > late.txt"], { cwd: dir, timeoutMs: 300 });
+    assert.equal(r.exit.signal, "SIGKILL");
+    await new Promise((res) => setTimeout(res, 2500));
+    assert.ok(!existsSync(joinPath(dir, "late.txt")), "the agent outlived the timeout and wrote untraced effects");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("SL-P3a-r1-C3: a spawn error removes record()'s temp folder", async () => {
+  const tmp = mkdtempSync(joinPath(tmpdir(), "sl-rec-tmp-"));
+  const saved = process.env.TMPDIR;
+  process.env.TMPDIR = tmp;
+  try {
+    await assert.rejects(record(["true"], { strace: joinPath(tmp, "no-such-strace") }), /ENOENT/);
+    assert.deepEqual(readdirSync(tmp), []);
+  } finally {
+    if (saved === undefined) delete process.env.TMPDIR;
+    else process.env.TMPDIR = saved;
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });

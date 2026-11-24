@@ -337,8 +337,9 @@ export function parseStrace(text, { cwd = "/", rootPid } = {}) {
         const [dir, pathArg, argvArg] = r.name === "execve" ? [undefined, a[0], a[1]] : [a[0], a[1], a[2]];
         push(r, { kind: "exec", path: abs(r.pid, str(pathArg), dir), argv: strs(argvArg) });
         if (ok) {
-          const fds = st(r.pid).fds;
-          for (const [k, v] of fds) if (v.cloexec) fds.delete(k);
+          // execve unshares a CLONE_FILES table first, so the cloexec drop never reaches the sharer.
+          const s = st(r.pid);
+          s.fds = new Map([...s.fds].filter(([, v]) => !v.cloexec).map(([k, v]) => [k, { ...v }]));
         }
         break;
       }
@@ -526,7 +527,7 @@ export function costReport(samples) {
 
 // -------------------------------------------------------------------- record
 
-export const STRACE_ARGS = ["-f", "-ttt", "-s", "4096", "-xx", "-e", "trace=%file,%desc,%process,%network,chdir,fchdir"];
+export const STRACE_ARGS = ["--kill-on-exit", "-f", "-ttt", "-s", "4096", "-xx", "-e", "trace=%file,%desc,%process,%network,chdir,fchdir"];
 
 /**
  * Run argv under strace (and read the audit log if available). Returns { effects, procs, cost }.
@@ -536,7 +537,8 @@ export const STRACE_ARGS = ["-f", "-ttt", "-s", "4096", "-xx", "-e", "trace=%fil
  *   auditLog   path of an audit log that holds the io_uring rule's records (read after the run, filtered to the run's pids and time)
  *   strace     strace binary (default "strace")
  *   traceFile  where strace writes (default a fresh temp folder, removed afterwards unless keepTrace)
- *   timeoutMs  kill the run after this long (default none)
+ *   timeoutMs  kill the run after this long (default none). `--kill-on-exit` makes the kernel kill
+ *              every tracee when strace dies, so no part of the agent outlives the trace.
  *   stdio      passed to spawn (default "ignore")
  */
 export async function record(argv, opts = {}) {
@@ -546,23 +548,29 @@ export async function record(argv, opts = {}) {
   const traceFile = opts.traceFile ?? joinPath(dir, "trace.strace");
   const t0 = performance.now();
   const wall0 = Date.now() / 1000;
-  const exit = await new Promise((resolve, reject) => {
-    const child = spawn(opts.strace ?? "strace", [...STRACE_ARGS, "-o", traceFile, "--", ...argv], {
-      cwd,
-      env: opts.env ?? process.env,
-      stdio: opts.stdio ?? "ignore",
+  let exit;
+  try {
+    exit = await new Promise((resolve, reject) => {
+      const child = spawn(opts.strace ?? "strace", [...STRACE_ARGS, "-o", traceFile, "--", ...argv], {
+        cwd,
+        env: opts.env ?? process.env,
+        stdio: opts.stdio ?? "ignore",
+      });
+      let timer = null;
+      if (opts.timeoutMs) timer = setTimeout(() => child.kill("SIGKILL"), opts.timeoutMs);
+      child.on("error", (e) => {
+        if (timer) clearTimeout(timer);
+        reject(e);
+      });
+      child.on("close", (code, signal) => {
+        if (timer) clearTimeout(timer);
+        resolve({ code, signal });
+      });
     });
-    let timer = null;
-    if (opts.timeoutMs) timer = setTimeout(() => child.kill("SIGKILL"), opts.timeoutMs);
-    child.on("error", (e) => {
-      if (timer) clearTimeout(timer);
-      reject(e);
-    });
-    child.on("close", (code, signal) => {
-      if (timer) clearTimeout(timer);
-      resolve({ code, signal });
-    });
-  });
+  } catch (e) {
+    if (dir && !opts.keepTrace) rmSync(dir, { recursive: true, force: true });
+    throw e;
+  }
   const traced_ms = performance.now() - t0;
   const wall1 = Date.now() / 1000;
   try {
