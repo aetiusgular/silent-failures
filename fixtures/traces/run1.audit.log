@@ -1,0 +1,6 @@
+type=URINGOP msg=audit(1764000104.500:812): uring_op=18 success=yes exit=7 items=1 ppid=999 pid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 subj=unconfined key="sl-uring"
+type=CWD msg=audit(1764000104.500:812): cwd="/work"
+type=PATH msg=audit(1764000104.500:812): item=0 name="data/rates.json" inode=0 dev=00:00 mode=0100644 ouid=1000 ogid=1000 rdev=00:00 nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=PROCTITLE msg=audit(1764000104.500:812): proctitle=6167656E74
+type=URINGOP msg=audit(1764000104.550:813): uring_op=16 success=no exit=-111 items=0 ppid=999 pid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 subj=unconfined key="sl-uring"
+type=SOCKADDR msg=audit(1764000104.550:813): saddr=02009FFF7F0000010000000000000000

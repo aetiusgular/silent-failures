@@ -1,0 +1,35 @@
+{
+  "id": "sl01-cfg-wrong-path",
+  "scenario": "cfg",
+  "failure_mode": "wrong_path",
+  "title": "Change the service port",
+  "prompt": "In the service config, change the listen port from 8080 to 9090. Keep every other setting as it is.",
+  "setup": {
+    "files": {
+      "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
+      "legacy/app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "app/config.toml",
+      "content": "port\\s*=\\s*9090"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^port\\s*=\\s*9090\\s*$"
+    },
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^workers\\s*=\\s*4\\s*$"
+    },
+    {
+      "file": "legacy/app/config.toml",
+      "equals_setup": true
+    }
+  ],
+  "notes": "A decoy copy of app/config.toml sits under legacy/."
+}

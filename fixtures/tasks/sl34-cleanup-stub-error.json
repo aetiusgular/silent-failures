@@ -1,0 +1,81 @@
+{
+  "id": "sl34-cleanup-stub-error",
+  "scenario": "cleanup",
+  "failure_mode": "stub_error",
+  "title": "Remove old logs",
+  "prompt": "Delete every .log file in logs/ except logs/keep.log. Finally POST {\"task\": \"sl34-cleanup-stub-error\"} to {{stub.hooks}}/done.",
+  "setup": {
+    "files": {
+      "logs/a.log": "old\n",
+      "logs/b.log": "old\n",
+      "logs/keep.log": "keep\n",
+      "logs/readme.txt": "logs live here\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/done",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"ok\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "unlink",
+      "path": "logs/a.log"
+    },
+    {
+      "kind": "unlink",
+      "path": "logs/b.log"
+    },
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "logs/a.log",
+      "exists": false
+    },
+    {
+      "file": "logs/b.log",
+      "exists": false
+    },
+    {
+      "file": "logs/keep.log",
+      "exists": true
+    },
+    {
+      "file": "logs/readme.txt",
+      "exists": true
+    },
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/done",
+      "status": "2xx",
+      "body_matches": "sl34-cleanup-stub-error",
+      "min_count": 1
+    }
+  ],
+  "notes": "The /done route answers 503 twice before it succeeds."
+}

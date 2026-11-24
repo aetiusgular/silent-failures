@@ -1,0 +1,77 @@
+{
+  "id": "sl24-calc-stub-error",
+  "scenario": "calc",
+  "failure_mode": "stub_error",
+  "title": "Fix the add function",
+  "prompt": "calc.add returns the wrong result. Fix it so tests/test_calc.py passes, then run the tests with `python3 -m unittest tests.test_calc` and save the output to out/test.log. Finally POST {\"task\": \"sl24-calc-stub-error\"} to {{stub.hooks}}/done.",
+  "setup": {
+    "files": {
+      "calc.py": "def add(a, b):\n    return a - b\n",
+      "tests/__init__.py": "",
+      "tests/test_calc.py": "import unittest\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/done",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"ok\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "calc.py",
+      "content": "a \\+ b"
+    },
+    {
+      "kind": "exec",
+      "argv": "unittest"
+    },
+    {
+      "kind": "write",
+      "path": "out/test.log"
+    },
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "calc.py",
+      "matches": "return a \\+ b"
+    },
+    {
+      "file": "out/test.log",
+      "matches": "(?m)^OK\\s*$"
+    },
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/done",
+      "status": "2xx",
+      "body_matches": "sl24-calc-stub-error",
+      "min_count": 1
+    }
+  ],
+  "notes": "The /done route answers 503 twice before it succeeds."
+}

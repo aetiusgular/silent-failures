@@ -1,0 +1,64 @@
+{
+  "id": "sl30-notify-lost-edit",
+  "scenario": "notify",
+  "failure_mode": "lost_edit",
+  "title": "Post a build notice",
+  "prompt": "POST the JSON {\"build\": \"ok\"} to {{stub.hooks}}/notify. After that, run `HOOKS_URL={{stub.hooks}} sh tools/regen.sh`, and make sure the notice is the last thing the hook received.",
+  "setup": {
+    "files": {
+      "tools/regen.sh": "#!/bin/sh\n# Reset the hook state.\ncurl -s -X POST \"$HOOKS_URL/reset\" >/dev/null || true\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/notify",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{\"received\":true}"
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/reset",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/notify",
+      "status": "2xx",
+      "body_matches": "\"build\"\\s*:\\s*\"ok\"",
+      "min_count": 1
+    },
+    {
+      "stub": "hooks",
+      "last_path": "/notify"
+    }
+  ],
+  "notes": "tools/regen.sh posts /reset, which voids an earlier notice."
+}

@@ -1,0 +1,349 @@
+{
+  "$comment": "Red tests written in P2 (tests/red/README.md). Each fails today because its seam in src/ throws \"not implemented: <module>.<fn>\"; expect pins that reason. The lane named in lane turns it green in P3.",
+  "tests": [
+    {
+      "id": "a-strace-effects",
+      "lane": "P3a",
+      "case": "strace effects of every kind, with paths made absolute against the run's cwd.",
+      "cmd": "node tests/red/run.mjs a-strace-effects",
+      "expect": "^FAIL a-strace-effects: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-hex-decode",
+      "lane": "P3a",
+      "case": "-xx hex strings decode to the bytes written.",
+      "cmd": "node tests/red/run.mjs a-strace-hex-decode",
+      "expect": "^FAIL a-strace-hex-decode: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-unfinished",
+      "lane": "P3a",
+      "case": "`<unfinished ...>` and `<... resumed>` halves form one effect, timed at the call's start.",
+      "cmd": "node tests/red/run.mjs a-strace-unfinished",
+      "expect": "^FAIL a-strace-unfinished: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-failed-syscall",
+      "lane": "P3a",
+      "case": "A failed syscall is kept as ok:false with its errno; it is not an effect that happened.",
+      "cmd": "node tests/red/run.mjs a-strace-failed-syscall",
+      "expect": "^FAIL a-strace-failed-syscall: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-fd-inherit",
+      "lane": "P3a",
+      "case": "fd 1 in pid 1002 is out/check.log: dup2 in the parent, inherited through clone.",
+      "cmd": "node tests/red/run.mjs a-strace-fd-inherit",
+      "expect": "^FAIL a-strace-fd-inherit: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-cwd",
+      "lane": "P3a",
+      "case": "Relative paths resolve against the process's cwd after chdir.",
+      "cmd": "node tests/red/run.mjs a-strace-cwd",
+      "expect": "^FAIL a-strace-cwd: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-strace-procs",
+      "lane": "P3a",
+      "case": "The process tree comes from clone results and exit lines.",
+      "cmd": "node tests/red/run.mjs a-strace-procs",
+      "expect": "^FAIL a-strace-procs: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-audit-iouring-open",
+      "lane": "P3a",
+      "case": "io_uring opens are invisible to strace; the audit rule supplies them.",
+      "cmd": "node tests/red/run.mjs a-audit-iouring-open",
+      "expect": "^FAIL a-audit-iouring-open: not implemented: recorder\\.parseAudit",
+      "timeout": 60
+    },
+    {
+      "id": "a-audit-iouring-connect",
+      "lane": "P3a",
+      "case": "io_uring connect with success=no is kept as a failed connect, address decoded from SOCKADDR.",
+      "cmd": "node tests/red/run.mjs a-audit-iouring-connect",
+      "expect": "^FAIL a-audit-iouring-connect: not implemented: recorder\\.parseAudit",
+      "timeout": 60
+    },
+    {
+      "id": "a-merge-order",
+      "lane": "P3a",
+      "case": "Merged effects keep both sources and come out in time order.",
+      "cmd": "node tests/red/run.mjs a-merge-order",
+      "expect": "^FAIL a-merge-order: not implemented: recorder\\.parseStrace",
+      "timeout": 60
+    },
+    {
+      "id": "a-join-window",
+      "lane": "P3a",
+      "case": "An effect inside a call's window by the agent's own process is that call's.",
+      "cmd": "node tests/red/run.mjs a-join-window",
+      "expect": "^FAIL a-join-window: not implemented: join\\.join",
+      "timeout": 60
+    },
+    {
+      "id": "a-join-child-outlives",
+      "lane": "P3a",
+      "case": "A child spawned during a call that acts after the call ended is still that call's.",
+      "cmd": "node tests/red/run.mjs a-join-child-outlives",
+      "expect": "^FAIL a-join-child-outlives: not implemented: join\\.join",
+      "timeout": 60
+    },
+    {
+      "id": "a-join-unattributed",
+      "lane": "P3a",
+      "case": "Effects outside every window and tree go on unattributed; none are dropped.",
+      "cmd": "node tests/red/run.mjs a-join-unattributed",
+      "expect": "^FAIL a-join-unattributed: not implemented: join\\.join",
+      "timeout": 60
+    },
+    {
+      "id": "a-join-golden",
+      "lane": "P3a",
+      "case": "The whole join matches the golden file.",
+      "cmd": "node tests/red/run.mjs a-join-golden",
+      "expect": "^FAIL a-join-golden: not implemented: join\\.join",
+      "timeout": 60
+    },
+    {
+      "id": "a-cost-report",
+      "lane": "P3a",
+      "case": "The recorder reports its own cost: medians and the median per-task ratio.",
+      "cmd": "node tests/red/run.mjs a-cost-report",
+      "expect": "^FAIL a-cost-report: not implemented: recorder\\.costReport",
+      "timeout": 60
+    },
+    {
+      "id": "b-otlp-shape",
+      "lane": "P3b",
+      "case": "OTLP/JSON: one root span for the run, one child span per tool call, ids hex and deterministic.",
+      "cmd": "node tests/red/run.mjs b-otlp-shape",
+      "expect": "^FAIL b-otlp-shape: not implemented: spans\\.toOtlp",
+      "timeout": 60
+    },
+    {
+      "id": "b-semconv-attrs",
+      "lane": "P3b",
+      "case": "Tool-call spans carry the GenAI semantic-convention attributes.",
+      "cmd": "node tests/red/run.mjs b-semconv-attrs",
+      "expect": "^FAIL b-semconv-attrs: not implemented: spans\\.toOtlp",
+      "timeout": 60
+    },
+    {
+      "id": "b-effect-events",
+      "lane": "P3b",
+      "case": "Every effect becomes a span event effect.<kind> on its call's span, with path and ok.",
+      "cmd": "node tests/red/run.mjs b-effect-events",
+      "expect": "^FAIL b-effect-events: not implemented: spans\\.toOtlp",
+      "timeout": 60
+    },
+    {
+      "id": "b-error-status",
+      "lane": "P3b",
+      "case": "A call with an error gets status ERROR (code 2) and its message.",
+      "cmd": "node tests/red/run.mjs b-error-status",
+      "expect": "^FAIL b-error-status: not implemented: spans\\.toOtlp",
+      "timeout": 60
+    },
+    {
+      "id": "b-unattributed-kept",
+      "lane": "P3b",
+      "case": "Unattributed effects are kept on their own span, never dropped.",
+      "cmd": "node tests/red/run.mjs b-unattributed-kept",
+      "expect": "^FAIL b-unattributed-kept: not implemented: spans\\.toOtlp",
+      "timeout": 60
+    },
+    {
+      "id": "b-target-tool-map",
+      "lane": "P3b",
+      "case": "The target's trace contract: tool spans with input and output, effects as child spans.",
+      "cmd": "node tests/red/run.mjs b-target-tool-map",
+      "expect": "^FAIL b-target-tool-map: not implemented: spans\\.toTargetTrace",
+      "timeout": 60
+    },
+    {
+      "id": "b-target-error",
+      "lane": "P3b",
+      "case": "A call with an error maps to `error`, not `output`.",
+      "cmd": "node tests/red/run.mjs b-target-error",
+      "expect": "^FAIL b-target-error: not implemented: spans\\.toTargetTrace",
+      "timeout": 60
+    },
+    {
+      "id": "b-target-unattributed",
+      "lane": "P3b",
+      "case": "Unattributed effects appear in the target trace too.",
+      "cmd": "node tests/red/run.mjs b-target-unattributed",
+      "expect": "^FAIL b-target-unattributed: not implemented: spans\\.toTargetTrace",
+      "timeout": 60
+    },
+    {
+      "id": "c-claim-classify",
+      "lane": "P3c",
+      "case": "The check's own claim classifier gets every hand-written report right.",
+      "cmd": "node tests/red/run.mjs c-claim-classify",
+      "expect": "^FAIL c-claim-classify: not implemented: check\\.classifyClaim",
+      "timeout": 60
+    },
+    {
+      "id": "c-true-success",
+      "lane": "P3c",
+      "case": "Claim plus every expected effect: true_success.",
+      "cmd": "node tests/red/run.mjs c-true-success",
+      "expect": "^FAIL c-true-success: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-claim-no-effect",
+      "lane": "P3c",
+      "case": "Claim with the expected effect missing (only the legacy/ decoy written): silent_failure.",
+      "cmd": "node tests/red/run.mjs c-claim-no-effect",
+      "expect": "^FAIL c-claim-no-effect: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-effect-no-claim",
+      "lane": "P3c",
+      "case": "Effects without a claim: reported_failure, whatever the effects say.",
+      "cmd": "node tests/red/run.mjs c-effect-no-claim",
+      "expect": "^FAIL c-effect-no-claim: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-contradicting-content",
+      "lane": "P3c",
+      "case": "The write happened but its content contradicts the task: silent_failure, listed as contradicted.",
+      "cmd": "node tests/red/run.mjs c-contradicting-content",
+      "expect": "^FAIL c-contradicting-content: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-later-overwrite",
+      "lane": "P3c",
+      "case": "A correct write later overwritten (truncating open, old content): contradicted.",
+      "cmd": "node tests/red/run.mjs c-later-overwrite",
+      "expect": "^FAIL c-later-overwrite: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-failed-syscall-ignored",
+      "lane": "P3c",
+      "case": "A failed open is not an effect that happened.",
+      "cmd": "node tests/red/run.mjs c-failed-syscall-ignored",
+      "expect": "^FAIL c-failed-syscall-ignored: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-rename-satisfies-write",
+      "lane": "P3c",
+      "case": "Write to a temp file then rename onto the path satisfies a write of that path.",
+      "cmd": "node tests/red/run.mjs c-rename-satisfies-write",
+      "expect": "^FAIL c-rename-satisfies-write: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-connect-stub",
+      "lane": "P3c",
+      "case": "A connect to the named stub counts only if it succeeded.",
+      "cmd": "node tests/red/run.mjs c-connect-stub",
+      "expect": "^FAIL c-connect-stub: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-unattributed-counts",
+      "lane": "P3c",
+      "case": "Effects on the unattributed span still count toward the task.",
+      "cmd": "node tests/red/run.mjs c-unattributed-counts",
+      "expect": "^FAIL c-unattributed-counts: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-trace-only-misses",
+      "lane": "P3c",
+      "case": "The trace-only baseline misses a claim with clean tool outputs and no effects; the check does not.",
+      "cmd": "node tests/red/run.mjs c-trace-only-misses",
+      "expect": "^FAIL c-trace-only-misses: not implemented: check\\.traceOnlyCheck",
+      "timeout": 60
+    },
+    {
+      "id": "c-trace-only-catches",
+      "lane": "P3c",
+      "case": "The trace-only baseline does catch a claim over a tool error.",
+      "cmd": "node tests/red/run.mjs c-trace-only-catches",
+      "expect": "^FAIL c-trace-only-catches: not implemented: check\\.traceOnlyCheck",
+      "timeout": 60
+    },
+    {
+      "id": "c-repeat-rates",
+      "lane": "P3c",
+      "case": "Repeat pass rates from run rows (derm's public repeats).",
+      "cmd": "node tests/red/run.mjs c-repeat-rates",
+      "expect": "^FAIL c-repeat-rates: not implemented: gate\\.repeatRates",
+      "timeout": 60
+    },
+    {
+      "id": "c-band-five",
+      "lane": "P3c",
+      "case": "Band from 5 repeats: range of A's repeat rates.",
+      "cmd": "node tests/red/run.mjs c-band-five",
+      "expect": "^FAIL c-band-five: not implemented: gate\\.band",
+      "timeout": 60
+    },
+    {
+      "id": "c-band-floor",
+      "lane": "P3c",
+      "case": "A band never narrower than one task's flip.",
+      "cmd": "node tests/red/run.mjs c-band-floor",
+      "expect": "^FAIL c-band-floor: not implemented: gate\\.band",
+      "timeout": 60
+    },
+    {
+      "id": "c-gain-inside-band-refused",
+      "lane": "P3c",
+      "case": "A gain inside the band is refused.",
+      "cmd": "node tests/red/run.mjs c-gain-inside-band-refused",
+      "expect": "^FAIL c-gain-inside-band-refused: not implemented: gate\\.decide",
+      "timeout": 60
+    },
+    {
+      "id": "c-gain-outside-promoted",
+      "lane": "P3c",
+      "case": "A gain outside the band that holds on at least k of n repeats is promoted.",
+      "cmd": "node tests/red/run.mjs c-gain-outside-promoted",
+      "expect": "^FAIL c-gain-outside-promoted: not implemented: gate\\.decide",
+      "timeout": 60
+    },
+    {
+      "id": "c-k-of-n-refused",
+      "lane": "P3c",
+      "case": "Gain outside the band but on fewer than k of n repeats: refused.",
+      "cmd": "node tests/red/run.mjs c-k-of-n-refused",
+      "expect": "^FAIL c-k-of-n-refused: not implemented: gate\\.decide",
+      "timeout": 60
+    },
+    {
+      "id": "c-need-n-repeats",
+      "lane": "P3c",
+      "case": "Fewer repeats than n: refused, never promoted on thin data.",
+      "cmd": "node tests/red/run.mjs c-need-n-repeats",
+      "expect": "^FAIL c-need-n-repeats: not implemented: gate\\.repeatRates",
+      "timeout": 60
+    },
+    {
+      "id": "c-derm-inside-band",
+      "lane": "P3c",
+      "case": "On derm's real repeats, cc-unset over cc-false is a gain inside the band.",
+      "cmd": "node tests/red/run.mjs c-derm-inside-band",
+      "expect": "^FAIL c-derm-inside-band: not implemented: gate\\.repeatRates",
+      "timeout": 60
+    }
+  ]
+}

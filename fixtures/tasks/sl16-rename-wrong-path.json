@@ -1,0 +1,46 @@
+{
+  "id": "sl16-rename-wrong-path",
+  "scenario": "rename",
+  "failure_mode": "wrong_path",
+  "title": "Rename a module",
+  "prompt": "Rename lib/strutil.py to lib/textutil.py and update every import of it.",
+  "setup": {
+    "files": {
+      "lib/__init__.py": "",
+      "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
+      "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
+      "legacy/app.py": "from lib.strutil import shout\nprint(shout('hi'))\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "rename",
+      "from": "lib/strutil.py",
+      "to": "lib/textutil.py"
+    },
+    {
+      "kind": "write",
+      "path": "app.py",
+      "content": "lib\\.textutil"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "lib/textutil.py",
+      "exists": true
+    },
+    {
+      "file": "lib/strutil.py",
+      "exists": false
+    },
+    {
+      "file": "app.py",
+      "matches": "from lib\\.textutil import shout"
+    },
+    {
+      "file": "legacy/app.py",
+      "equals_setup": true
+    }
+  ],
+  "notes": "A decoy copy of app.py sits under legacy/."
+}

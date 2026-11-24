@@ -1,0 +1,10 @@
+{
+  "$comment": "Synthetic, hand-written for the costReport red test. Not a measurement; no README or PR may quote these numbers.",
+  "samples": [
+    { "task": "x1", "traced_ms": 1300, "untraced_ms": 1000 },
+    { "task": "x2", "traced_ms": 2600, "untraced_ms": 2000 },
+    { "task": "x3", "traced_ms": 1500, "untraced_ms": 1200 },
+    { "task": "x4", "traced_ms": 900, "untraced_ms": 800 },
+    { "task": "x5", "traced_ms": 3900, "untraced_ms": 3000 }
+  ]
+}

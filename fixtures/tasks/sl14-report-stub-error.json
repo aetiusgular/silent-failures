@@ -1,0 +1,66 @@
+{
+  "id": "sl14-report-stub-error",
+  "scenario": "report",
+  "failure_mode": "stub_error",
+  "title": "Sum the orders",
+  "prompt": "Sum the amount column of the orders file and write {\"total\": <sum>} as JSON to out/summary.json. Finally POST {\"task\": \"sl14-report-stub-error\"} to {{stub.hooks}}/done.",
+  "setup": {
+    "files": {
+      "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/done",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"ok\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "out/summary.json",
+      "content": "\"total\"\\s*:\\s*600"
+    },
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "out/summary.json",
+      "json": {
+        "pointer": "/total",
+        "equals": 600
+      }
+    },
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/done",
+      "status": "2xx",
+      "body_matches": "sl14-report-stub-error",
+      "min_count": 1
+    }
+  ],
+  "notes": "The /done route answers 503 twice before it succeeds."
+}

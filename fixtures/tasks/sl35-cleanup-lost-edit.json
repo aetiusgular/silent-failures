@@ -1,0 +1,50 @@
+{
+  "id": "sl35-cleanup-lost-edit",
+  "scenario": "cleanup",
+  "failure_mode": "lost_edit",
+  "title": "Remove old logs",
+  "prompt": "Delete every .log file in logs/ except logs/keep.log. After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "logs/a.log": "old\n",
+      "logs/b.log": "old\n",
+      "logs/keep.log": "keep\n",
+      "logs/readme.txt": "logs live here\n",
+      "templates/logs/a.log": "old\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p \"$(dirname 'logs/a.log')\"\ncp 'templates/logs/a.log' 'logs/a.log'\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "unlink",
+      "path": "logs/a.log"
+    },
+    {
+      "kind": "unlink",
+      "path": "logs/b.log"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "logs/a.log",
+      "exists": false
+    },
+    {
+      "file": "logs/b.log",
+      "exists": false
+    },
+    {
+      "file": "logs/keep.log",
+      "exists": true
+    },
+    {
+      "file": "logs/readme.txt",
+      "exists": true
+    }
+  ],
+  "notes": "tools/regen.sh overwrites logs/a.log from templates/."
+}

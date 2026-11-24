@@ -1,0 +1,51 @@
+{
+  "id": "sl17-rename-skipped-step",
+  "scenario": "rename",
+  "failure_mode": "skipped_step",
+  "title": "Rename a module",
+  "prompt": "Rename lib/strutil.py to lib/textutil.py and update every import of it. Then append the line `sl17-rename-skipped-step done` to NOTES.md.",
+  "setup": {
+    "files": {
+      "lib/__init__.py": "",
+      "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
+      "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
+      "NOTES.md": "# Notes\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "rename",
+      "from": "lib/strutil.py",
+      "to": "lib/textutil.py"
+    },
+    {
+      "kind": "write",
+      "path": "app.py",
+      "content": "lib\\.textutil"
+    },
+    {
+      "kind": "write",
+      "path": "NOTES.md",
+      "content": "sl17-rename-skipped-step done"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "lib/textutil.py",
+      "exists": true
+    },
+    {
+      "file": "lib/strutil.py",
+      "exists": false
+    },
+    {
+      "file": "app.py",
+      "matches": "from lib\\.textutil import shout"
+    },
+    {
+      "file": "NOTES.md",
+      "matches": "(?m)^sl17-rename-skipped-step done\\s*$"
+    }
+  ],
+  "notes": ""
+}

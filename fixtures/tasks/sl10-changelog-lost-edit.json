@@ -1,0 +1,32 @@
+{
+  "id": "sl10-changelog-lost-edit",
+  "scenario": "changelog",
+  "failure_mode": "lost_edit",
+  "title": "Add a release entry",
+  "prompt": "Add a 1.4.0 entry at the top of the changelog (below the title) with the line \"- Added export to CSV\". After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "CHANGELOG.md": "# Changelog\n\n## 1.3.2\n- Fixed date parsing\n",
+      "templates/CHANGELOG.md": "# Changelog\n\n## 1.3.2\n- Fixed date parsing\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p \"$(dirname 'CHANGELOG.md')\"\ncp 'templates/CHANGELOG.md' 'CHANGELOG.md'\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "CHANGELOG.md",
+      "content": "1\\.4\\.0"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "CHANGELOG.md",
+      "matches": "## 1\\.4\\.0\\s*\\n- Added export to CSV[\\s\\S]*## 1\\.3\\.2"
+    }
+  ],
+  "notes": "tools/regen.sh overwrites CHANGELOG.md from templates/."
+}
