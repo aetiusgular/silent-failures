@@ -16,7 +16,10 @@ const callSpanId = (runId, callId) => sha(`${runId}:${callId}`).slice(0, 16);
 // Root and unattributed ids use a NUL separator, which a call id joined with
 // ":" cannot produce, so they never collide with a call's span id.
 const ownSpanId = (runId, what) => sha(`${runId}\u0000${what}`).slice(0, 16);
-const effectSpanId = (runId, callId, i) => sha(`${runId}\u0000${callId}\u0000${i}`).slice(0, 16);
+// Effect child spans: the call id is JSON-encoded (null for unattributed), so
+// a call id that itself holds a NUL cannot shift the fields and collide with
+// another call's or the unattributed span's effects (SL-P3b-r1-C2).
+const effectSpanId = (runId, callId, i) => sha(`${runId}\u0000${JSON.stringify(callId)}\u0000${i}`).slice(0, 16);
 
 /** Epoch seconds (float) -> OTLP `*UnixNano` string: BigInt(round(ts * 1e6)) * 1000. */
 export function unixNano(ts) {
@@ -54,13 +57,24 @@ function runRange(joined) {
   for (const p of joined.procs ?? []) ts.push(p.ts_start, p.ts_end);
   const ok = ts.filter((t) => typeof t === "number" && Number.isFinite(t));
   if (ok.length === 0) return { start: 0, end: 0 };
-  return { start: Math.min(...ok), end: Math.max(...ok) };
+  return minMax(ok);
+}
+
+// A loop, not Math.min(...ts): spreading a run's timestamps as call arguments
+// overflows the stack past roughly 120k effects (SL-P3b-r1-C1).
+function minMax(ts) {
+  let start = Infinity;
+  let end = -Infinity;
+  for (const t of ts) {
+    if (t < start) start = t;
+    if (t > end) end = t;
+  }
+  return { start, end };
 }
 
 function effectRange(effects, fallback) {
   if (effects.length === 0) return fallback;
-  const ts = effects.map((e) => e.ts);
-  return { start: Math.min(...ts), end: Math.max(...ts) };
+  return minMax(effects.map((e) => e.ts));
 }
 
 // ---- OTLP/JSON ------------------------------------------------------------
@@ -200,7 +214,7 @@ export function toTargetTrace(joined) {
     name: "unattributed",
     ...timing(ur.start, ur.end),
     attributes: { "sf.unattributed": true },
-    spans: joined.unattributed.map((e, i) => effectSpan(e, effectSpanId(runId, "\u0000unattributed", i), uid)),
+    spans: joined.unattributed.map((e, i) => effectSpan(e, effectSpanId(runId, null, i), uid)),
   };
 
   return { id: runId, name: "invoke_agent", ...timing(range.start, range.end), spans: [...tools, unattributed] };

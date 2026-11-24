@@ -32,9 +32,10 @@ Beyond the red tests, the lane does the following:
 - Written bytes are never put in either output. Paths, rename targets, addresses, errnos and exec argv are.
 - A failed syscall shows as `effect.ok = false` with `effect.errno`. In the target shape it gets `status: "ERROR"` and `error: <errno>`.
 - The root span runs from the first to the last timestamp in the run, so it covers effects of children that outlive their call.
-- Target spans carry `id`, `parent_id`, `started_at`, `ended_at` and `duration_ms`, which are fields in the target's published trace contract. Effect child spans also carry `attributes` keyed `effect.*`. The `effect.*` and `sf.*` keys are this project's own.
+- Target spans carry `id`, `started_at`, `ended_at` and `duration_ms`, which are fields in the target's published trace contract. Effect child spans also carry `parent_id`, set to their tool or `unattributed` span. Tool and `unattributed` spans have no `parent_id`: they sit directly under the root (SL-P3b-r1-D1). Effect child spans carry `attributes` keyed `effect.*`. The `effect.*` and `sf.*` keys are this project's own.
+- Both mappings handle runs with hundreds of thousands of effects (SL-P3b-r1-C1).
 
 What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
 - `bash scripts/forge-gate.sh P3b` passed. The 15 P3a and 8 P3b red tests are green, and the 24 P3c tests still fail for their stated reason.
-- `bash scripts/test.sh` passed, with 16 new lane unit tests in `src/spans/spans.test.mjs`.
+- `bash scripts/test.sh` passed, with 18 lane unit tests in `src/spans/spans.test.mjs` (16 in round 1, plus 2 from review round 1).
 - No model ran and no results row was written. Nothing was sent to the target's ingest API, which needs a key.

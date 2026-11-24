@@ -169,3 +169,26 @@ test("bad input is refused with a message, not a crash deep inside", () => {
   assert.throws(() => toOtlp({ run_id: "", calls: [], unattributed: [] }), /run_id/);
   assert.throws(() => toTargetTrace({ run_id: "r", calls: [] }), /unattributed/);
 });
+
+test("SL-P3b-r1-C1: a run with 200k effects maps without overflowing the stack", () => {
+  const effects = Array.from({ length: 200000 }, (_, i) => eff("write", 1 + i * 1e-6, { path: "/w/a" }));
+  const j = run([call("a", 1, 2, { effects })], effects.slice(0, 1000));
+  const o = spansOf(toOtlp(j));
+  assert.equal(o.find((s) => s.name === "execute_tool bash").events.length, 200000);
+  assert.equal(o[0].endTimeUnixNano, unixNano(2));
+  assert.equal(toTargetTrace(j).spans[0].spans.length, 200000);
+});
+
+test("SL-P3b-r1-C2: a call id holding a NUL cannot collide with another span's effect ids", () => {
+  const j = run(
+    [
+      call("\u0000unattributed", 1, 2, { effects: [eff("write", 1.1, { path: "/p" })] }),
+      call("a\u00000", 2, 3, { effects: [eff("write", 2.1, { path: "/p" })] }),
+      call("a", 3, 4, { effects: [eff("write", 3.1, { path: "/p" })] }),
+    ],
+    [eff("write", 1.2, { path: "/p" })],
+  );
+  const ids = allTargetIds(toTargetTrace(j));
+  assert.equal(ids.length, 8);
+  assert.equal(new Set(ids).size, ids.length);
+});
