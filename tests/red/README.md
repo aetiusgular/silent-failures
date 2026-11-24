@@ -24,3 +24,9 @@ Written in P2: one failing test per corner case per lane. Lanes do not edit this
 ```
 
 `lane` must be a P3 phase in `.forge/state.json`. `timeout` is in seconds (default 600). Install what the tests need in `scripts/setup.sh`; ci runs it before the gate.
+
+## P2 set
+
+There are 47 tests: P3a 15, P3b 8, P3c 24. Each `cmd` is `node tests/red/run.mjs <id>`. That runner runs exactly one case from `cases/p3*.mjs`, exits 1 with `FAIL <id>: <message>`, and exits 3 for an unknown id, so a typo never reads as green. Today each test fails with `not implemented: <module>.<fn>`, thrown by its seam in `src/`.
+
+Lanes P3b and P3c read the golden `fixtures/traces/run1.joined.json` and hand-built JoinedRuns. They never call lane P3a's code, so the lanes can land in any order.

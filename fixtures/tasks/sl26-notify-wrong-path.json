@@ -1,0 +1,54 @@
+{
+  "id": "sl26-notify-wrong-path",
+  "scenario": "notify",
+  "failure_mode": "wrong_path",
+  "title": "Post a build notice",
+  "prompt": "POST the JSON {\"build\": \"ok\"} to {{stub.hooks}}/notify. The old endpoint under /v0/ is retired.",
+  "setup": {
+    "files": {}
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/notify",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{\"received\":true}"
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/v0/notify",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/notify",
+      "status": "2xx",
+      "body_matches": "\"build\"\\s*:\\s*\"ok\"",
+      "min_count": 1
+    }
+  ],
+  "notes": "A retired /v0/ route answers 200 too."
+}

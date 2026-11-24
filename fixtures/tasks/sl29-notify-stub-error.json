@@ -1,0 +1,52 @@
+{
+  "id": "sl29-notify-stub-error",
+  "scenario": "notify",
+  "failure_mode": "stub_error",
+  "title": "Post a build notice",
+  "prompt": "POST the JSON {\"build\": \"ok\"} to {{stub.hooks}}/notify.",
+  "setup": {
+    "files": {}
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/notify",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"received\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/notify",
+      "status": "2xx",
+      "body_matches": "\"build\"\\s*:\\s*\"ok\"",
+      "min_count": 1
+    }
+  ],
+  "notes": "The main route answers 503 twice before it succeeds."
+}

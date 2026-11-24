@@ -1,0 +1,40 @@
+{
+  "id": "sl05-cfg-lost-edit",
+  "scenario": "cfg",
+  "failure_mode": "lost_edit",
+  "title": "Change the service port",
+  "prompt": "In the service config, change the listen port from 8080 to 9090. Keep every other setting as it is. After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
+      "templates/app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'app/config.toml')\"\ncp 'templates/app/config.toml' 'app/config.toml'\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "app/config.toml",
+      "content": "port\\s*=\\s*9090"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^port\\s*=\\s*9090\\s*$"
+    },
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^workers\\s*=\\s*4\\s*$"
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
+    }
+  ],
+  "notes": "tools/regen.sh overwrites app/config.toml from templates/."
+}

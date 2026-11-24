@@ -1,0 +1,63 @@
+{
+  "id": "sl39-fetch-stub-error",
+  "scenario": "fetch",
+  "failure_mode": "stub_error",
+  "title": "Save the exchange rates",
+  "prompt": "Download {{stub.rates}}/rates.json and save the body unchanged to data/rates.json.",
+  "setup": {
+    "files": {}
+  },
+  "stubs": [
+    {
+      "name": "rates",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/rates.json",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"base\":\"KRN\",\"VLT\":1.37}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "rates"
+    },
+    {
+      "kind": "write",
+      "path": "data/rates.json",
+      "content": "VLT"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "data/rates.json",
+      "json": {
+        "pointer": "/VLT",
+        "equals": 1.37
+      }
+    },
+    {
+      "stub": "rates",
+      "method": "GET",
+      "path": "/rates.json",
+      "status": "2xx",
+      "min_count": 1
+    }
+  ],
+  "notes": "The main route answers 503 twice before it succeeds."
+}

@@ -1,0 +1,66 @@
+{
+  "id": "sl40-fetch-lost-edit",
+  "scenario": "fetch",
+  "failure_mode": "lost_edit",
+  "title": "Save the exchange rates",
+  "prompt": "Download {{stub.rates}}/rates.json and save the body unchanged to data/rates.json. After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "templates/data/rates.json": "{}\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'data/rates.json')\"\ncp 'templates/data/rates.json' 'data/rates.json'\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "rates",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/rates.json",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{\"base\":\"KRN\",\"VLT\":1.37}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "rates"
+    },
+    {
+      "kind": "write",
+      "path": "data/rates.json",
+      "content": "VLT"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "data/rates.json",
+      "json": {
+        "pointer": "/VLT",
+        "equals": 1.37
+      }
+    },
+    {
+      "stub": "rates",
+      "method": "GET",
+      "path": "/rates.json",
+      "status": "2xx",
+      "min_count": 1
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
+    }
+  ],
+  "notes": "tools/regen.sh overwrites data/rates.json from templates/."
+}

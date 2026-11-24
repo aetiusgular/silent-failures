@@ -1,0 +1,2118 @@
+{
+  "$comment": "Repeat structure of derm benchmark (300 runs): pass/fail only. Derived in P2 from the public rows; no final text, tools or tokens copied. Used for band-gate arithmetic only, never for the headline (SPEC.md).",
+  "source": {
+    "repo": "https://github.com/aetiusgular/derm",
+    "commit": "aebf80fd4492e3778cef667516b1419ae0caf887",
+    "licence": "MIT",
+    "files": {
+      "tests/measure/results/pi-results.jsonl": "ecb36f2a8c909cd93bf8fd4a9ae482670e12889f044d1d2b5585428e6d818864",
+      "tests/measure/results/cc-results.jsonl": "57f6859301894cf2a655f3d793aaead6012ddaa6459e5e77a905f7650c167581"
+    },
+    "derived": "jq: map({run, cond, task, k, pass}) | sort_by(.cond, .task, .k)",
+    "read": "2026-11-24"
+  },
+  "tasks": 20,
+  "repeats": 3,
+  "rows": [
+    {
+      "run": "cc-r0002-cc-auto-t01-k1",
+      "cond": "cc-auto",
+      "task": "t01",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0062-cc-auto-t01-k2",
+      "cond": "cc-auto",
+      "task": "t01",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0122-cc-auto-t01-k3",
+      "cond": "cc-auto",
+      "task": "t01",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0005-cc-auto-t02-k1",
+      "cond": "cc-auto",
+      "task": "t02",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0065-cc-auto-t02-k2",
+      "cond": "cc-auto",
+      "task": "t02",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0125-cc-auto-t02-k3",
+      "cond": "cc-auto",
+      "task": "t02",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0008-cc-auto-t03-k1",
+      "cond": "cc-auto",
+      "task": "t03",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0068-cc-auto-t03-k2",
+      "cond": "cc-auto",
+      "task": "t03",
+      "k": 2,
+      "pass": false
+    },
+    {
+      "run": "cc-r0128-cc-auto-t03-k3",
+      "cond": "cc-auto",
+      "task": "t03",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0011-cc-auto-t04-k1",
+      "cond": "cc-auto",
+      "task": "t04",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0071-cc-auto-t04-k2",
+      "cond": "cc-auto",
+      "task": "t04",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0131-cc-auto-t04-k3",
+      "cond": "cc-auto",
+      "task": "t04",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0014-cc-auto-t05-k1",
+      "cond": "cc-auto",
+      "task": "t05",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0074-cc-auto-t05-k2",
+      "cond": "cc-auto",
+      "task": "t05",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0134-cc-auto-t05-k3",
+      "cond": "cc-auto",
+      "task": "t05",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0017-cc-auto-t06-k1",
+      "cond": "cc-auto",
+      "task": "t06",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0077-cc-auto-t06-k2",
+      "cond": "cc-auto",
+      "task": "t06",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0137-cc-auto-t06-k3",
+      "cond": "cc-auto",
+      "task": "t06",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0020-cc-auto-t07-k1",
+      "cond": "cc-auto",
+      "task": "t07",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0080-cc-auto-t07-k2",
+      "cond": "cc-auto",
+      "task": "t07",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0140-cc-auto-t07-k3",
+      "cond": "cc-auto",
+      "task": "t07",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0023-cc-auto-t08-k1",
+      "cond": "cc-auto",
+      "task": "t08",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0083-cc-auto-t08-k2",
+      "cond": "cc-auto",
+      "task": "t08",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0143-cc-auto-t08-k3",
+      "cond": "cc-auto",
+      "task": "t08",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0026-cc-auto-t09-k1",
+      "cond": "cc-auto",
+      "task": "t09",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0086-cc-auto-t09-k2",
+      "cond": "cc-auto",
+      "task": "t09",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0146-cc-auto-t09-k3",
+      "cond": "cc-auto",
+      "task": "t09",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0029-cc-auto-t10-k1",
+      "cond": "cc-auto",
+      "task": "t10",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0089-cc-auto-t10-k2",
+      "cond": "cc-auto",
+      "task": "t10",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0149-cc-auto-t10-k3",
+      "cond": "cc-auto",
+      "task": "t10",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0032-cc-auto-t11-k1",
+      "cond": "cc-auto",
+      "task": "t11",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0092-cc-auto-t11-k2",
+      "cond": "cc-auto",
+      "task": "t11",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0152-cc-auto-t11-k3",
+      "cond": "cc-auto",
+      "task": "t11",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0035-cc-auto-t12-k1",
+      "cond": "cc-auto",
+      "task": "t12",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0095-cc-auto-t12-k2",
+      "cond": "cc-auto",
+      "task": "t12",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0155-cc-auto-t12-k3",
+      "cond": "cc-auto",
+      "task": "t12",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0038-cc-auto-t13-k1",
+      "cond": "cc-auto",
+      "task": "t13",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0098-cc-auto-t13-k2",
+      "cond": "cc-auto",
+      "task": "t13",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0158-cc-auto-t13-k3",
+      "cond": "cc-auto",
+      "task": "t13",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0041-cc-auto-t14-k1",
+      "cond": "cc-auto",
+      "task": "t14",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0101-cc-auto-t14-k2",
+      "cond": "cc-auto",
+      "task": "t14",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0161-cc-auto-t14-k3",
+      "cond": "cc-auto",
+      "task": "t14",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0044-cc-auto-t15-k1",
+      "cond": "cc-auto",
+      "task": "t15",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0104-cc-auto-t15-k2",
+      "cond": "cc-auto",
+      "task": "t15",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0164-cc-auto-t15-k3",
+      "cond": "cc-auto",
+      "task": "t15",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0047-cc-auto-t16-k1",
+      "cond": "cc-auto",
+      "task": "t16",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0107-cc-auto-t16-k2",
+      "cond": "cc-auto",
+      "task": "t16",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0167-cc-auto-t16-k3",
+      "cond": "cc-auto",
+      "task": "t16",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0050-cc-auto-t17-k1",
+      "cond": "cc-auto",
+      "task": "t17",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0110-cc-auto-t17-k2",
+      "cond": "cc-auto",
+      "task": "t17",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0170-cc-auto-t17-k3",
+      "cond": "cc-auto",
+      "task": "t17",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0053-cc-auto-t18-k1",
+      "cond": "cc-auto",
+      "task": "t18",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0113-cc-auto-t18-k2",
+      "cond": "cc-auto",
+      "task": "t18",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0173-cc-auto-t18-k3",
+      "cond": "cc-auto",
+      "task": "t18",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0056-cc-auto-t19-k1",
+      "cond": "cc-auto",
+      "task": "t19",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0116-cc-auto-t19-k2",
+      "cond": "cc-auto",
+      "task": "t19",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0176-cc-auto-t19-k3",
+      "cond": "cc-auto",
+      "task": "t19",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0059-cc-auto-t20-k1",
+      "cond": "cc-auto",
+      "task": "t20",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0119-cc-auto-t20-k2",
+      "cond": "cc-auto",
+      "task": "t20",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0179-cc-auto-t20-k3",
+      "cond": "cc-auto",
+      "task": "t20",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0003-cc-false-t01-k1",
+      "cond": "cc-false",
+      "task": "t01",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0063-cc-false-t01-k2",
+      "cond": "cc-false",
+      "task": "t01",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0123-cc-false-t01-k3",
+      "cond": "cc-false",
+      "task": "t01",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0006-cc-false-t02-k1",
+      "cond": "cc-false",
+      "task": "t02",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0066-cc-false-t02-k2",
+      "cond": "cc-false",
+      "task": "t02",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0126-cc-false-t02-k3",
+      "cond": "cc-false",
+      "task": "t02",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0009-cc-false-t03-k1",
+      "cond": "cc-false",
+      "task": "t03",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0069-cc-false-t03-k2",
+      "cond": "cc-false",
+      "task": "t03",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0129-cc-false-t03-k3",
+      "cond": "cc-false",
+      "task": "t03",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0012-cc-false-t04-k1",
+      "cond": "cc-false",
+      "task": "t04",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0072-cc-false-t04-k2",
+      "cond": "cc-false",
+      "task": "t04",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0132-cc-false-t04-k3",
+      "cond": "cc-false",
+      "task": "t04",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0015-cc-false-t05-k1",
+      "cond": "cc-false",
+      "task": "t05",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0075-cc-false-t05-k2",
+      "cond": "cc-false",
+      "task": "t05",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0135-cc-false-t05-k3",
+      "cond": "cc-false",
+      "task": "t05",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0018-cc-false-t06-k1",
+      "cond": "cc-false",
+      "task": "t06",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0078-cc-false-t06-k2",
+      "cond": "cc-false",
+      "task": "t06",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0138-cc-false-t06-k3",
+      "cond": "cc-false",
+      "task": "t06",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0021-cc-false-t07-k1",
+      "cond": "cc-false",
+      "task": "t07",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0081-cc-false-t07-k2",
+      "cond": "cc-false",
+      "task": "t07",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0141-cc-false-t07-k3",
+      "cond": "cc-false",
+      "task": "t07",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0024-cc-false-t08-k1",
+      "cond": "cc-false",
+      "task": "t08",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0084-cc-false-t08-k2",
+      "cond": "cc-false",
+      "task": "t08",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0144-cc-false-t08-k3",
+      "cond": "cc-false",
+      "task": "t08",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0027-cc-false-t09-k1",
+      "cond": "cc-false",
+      "task": "t09",
+      "k": 1,
+      "pass": false
+    },
+    {
+      "run": "cc-r0087-cc-false-t09-k2",
+      "cond": "cc-false",
+      "task": "t09",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0147-cc-false-t09-k3",
+      "cond": "cc-false",
+      "task": "t09",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0030-cc-false-t10-k1",
+      "cond": "cc-false",
+      "task": "t10",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0090-cc-false-t10-k2",
+      "cond": "cc-false",
+      "task": "t10",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0150-cc-false-t10-k3",
+      "cond": "cc-false",
+      "task": "t10",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0033-cc-false-t11-k1",
+      "cond": "cc-false",
+      "task": "t11",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0093-cc-false-t11-k2",
+      "cond": "cc-false",
+      "task": "t11",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0153-cc-false-t11-k3",
+      "cond": "cc-false",
+      "task": "t11",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0036-cc-false-t12-k1",
+      "cond": "cc-false",
+      "task": "t12",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0096-cc-false-t12-k2",
+      "cond": "cc-false",
+      "task": "t12",
+      "k": 2,
+      "pass": false
+    },
+    {
+      "run": "cc-r0156-cc-false-t12-k3",
+      "cond": "cc-false",
+      "task": "t12",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0039-cc-false-t13-k1",
+      "cond": "cc-false",
+      "task": "t13",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0099-cc-false-t13-k2",
+      "cond": "cc-false",
+      "task": "t13",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0159-cc-false-t13-k3",
+      "cond": "cc-false",
+      "task": "t13",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0042-cc-false-t14-k1",
+      "cond": "cc-false",
+      "task": "t14",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0102-cc-false-t14-k2",
+      "cond": "cc-false",
+      "task": "t14",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0162-cc-false-t14-k3",
+      "cond": "cc-false",
+      "task": "t14",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0045-cc-false-t15-k1",
+      "cond": "cc-false",
+      "task": "t15",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0105-cc-false-t15-k2",
+      "cond": "cc-false",
+      "task": "t15",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0165-cc-false-t15-k3",
+      "cond": "cc-false",
+      "task": "t15",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0048-cc-false-t16-k1",
+      "cond": "cc-false",
+      "task": "t16",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0108-cc-false-t16-k2",
+      "cond": "cc-false",
+      "task": "t16",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0168-cc-false-t16-k3",
+      "cond": "cc-false",
+      "task": "t16",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0051-cc-false-t17-k1",
+      "cond": "cc-false",
+      "task": "t17",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0111-cc-false-t17-k2",
+      "cond": "cc-false",
+      "task": "t17",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0171-cc-false-t17-k3",
+      "cond": "cc-false",
+      "task": "t17",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0054-cc-false-t18-k1",
+      "cond": "cc-false",
+      "task": "t18",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0114-cc-false-t18-k2",
+      "cond": "cc-false",
+      "task": "t18",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0174-cc-false-t18-k3",
+      "cond": "cc-false",
+      "task": "t18",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0057-cc-false-t19-k1",
+      "cond": "cc-false",
+      "task": "t19",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0117-cc-false-t19-k2",
+      "cond": "cc-false",
+      "task": "t19",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0177-cc-false-t19-k3",
+      "cond": "cc-false",
+      "task": "t19",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0060-cc-false-t20-k1",
+      "cond": "cc-false",
+      "task": "t20",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0120-cc-false-t20-k2",
+      "cond": "cc-false",
+      "task": "t20",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0180-cc-false-t20-k3",
+      "cond": "cc-false",
+      "task": "t20",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0001-cc-unset-t01-k1",
+      "cond": "cc-unset",
+      "task": "t01",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0061-cc-unset-t01-k2",
+      "cond": "cc-unset",
+      "task": "t01",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0121-cc-unset-t01-k3",
+      "cond": "cc-unset",
+      "task": "t01",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0004-cc-unset-t02-k1",
+      "cond": "cc-unset",
+      "task": "t02",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0064-cc-unset-t02-k2",
+      "cond": "cc-unset",
+      "task": "t02",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0124-cc-unset-t02-k3",
+      "cond": "cc-unset",
+      "task": "t02",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0007-cc-unset-t03-k1",
+      "cond": "cc-unset",
+      "task": "t03",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0067-cc-unset-t03-k2",
+      "cond": "cc-unset",
+      "task": "t03",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0127-cc-unset-t03-k3",
+      "cond": "cc-unset",
+      "task": "t03",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0010-cc-unset-t04-k1",
+      "cond": "cc-unset",
+      "task": "t04",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0070-cc-unset-t04-k2",
+      "cond": "cc-unset",
+      "task": "t04",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0130-cc-unset-t04-k3",
+      "cond": "cc-unset",
+      "task": "t04",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0013-cc-unset-t05-k1",
+      "cond": "cc-unset",
+      "task": "t05",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0073-cc-unset-t05-k2",
+      "cond": "cc-unset",
+      "task": "t05",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0133-cc-unset-t05-k3",
+      "cond": "cc-unset",
+      "task": "t05",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0016-cc-unset-t06-k1",
+      "cond": "cc-unset",
+      "task": "t06",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0076-cc-unset-t06-k2",
+      "cond": "cc-unset",
+      "task": "t06",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0136-cc-unset-t06-k3",
+      "cond": "cc-unset",
+      "task": "t06",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0019-cc-unset-t07-k1",
+      "cond": "cc-unset",
+      "task": "t07",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0079-cc-unset-t07-k2",
+      "cond": "cc-unset",
+      "task": "t07",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0139-cc-unset-t07-k3",
+      "cond": "cc-unset",
+      "task": "t07",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0022-cc-unset-t08-k1",
+      "cond": "cc-unset",
+      "task": "t08",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0082-cc-unset-t08-k2",
+      "cond": "cc-unset",
+      "task": "t08",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0142-cc-unset-t08-k3",
+      "cond": "cc-unset",
+      "task": "t08",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0025-cc-unset-t09-k1",
+      "cond": "cc-unset",
+      "task": "t09",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0085-cc-unset-t09-k2",
+      "cond": "cc-unset",
+      "task": "t09",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0145-cc-unset-t09-k3",
+      "cond": "cc-unset",
+      "task": "t09",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0028-cc-unset-t10-k1",
+      "cond": "cc-unset",
+      "task": "t10",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0088-cc-unset-t10-k2",
+      "cond": "cc-unset",
+      "task": "t10",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0148-cc-unset-t10-k3",
+      "cond": "cc-unset",
+      "task": "t10",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0031-cc-unset-t11-k1",
+      "cond": "cc-unset",
+      "task": "t11",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0091-cc-unset-t11-k2",
+      "cond": "cc-unset",
+      "task": "t11",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0151-cc-unset-t11-k3",
+      "cond": "cc-unset",
+      "task": "t11",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0034-cc-unset-t12-k1",
+      "cond": "cc-unset",
+      "task": "t12",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0094-cc-unset-t12-k2",
+      "cond": "cc-unset",
+      "task": "t12",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0154-cc-unset-t12-k3",
+      "cond": "cc-unset",
+      "task": "t12",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0037-cc-unset-t13-k1",
+      "cond": "cc-unset",
+      "task": "t13",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0097-cc-unset-t13-k2",
+      "cond": "cc-unset",
+      "task": "t13",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0157-cc-unset-t13-k3",
+      "cond": "cc-unset",
+      "task": "t13",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0040-cc-unset-t14-k1",
+      "cond": "cc-unset",
+      "task": "t14",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0100-cc-unset-t14-k2",
+      "cond": "cc-unset",
+      "task": "t14",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0160-cc-unset-t14-k3",
+      "cond": "cc-unset",
+      "task": "t14",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0043-cc-unset-t15-k1",
+      "cond": "cc-unset",
+      "task": "t15",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0103-cc-unset-t15-k2",
+      "cond": "cc-unset",
+      "task": "t15",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0163-cc-unset-t15-k3",
+      "cond": "cc-unset",
+      "task": "t15",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0046-cc-unset-t16-k1",
+      "cond": "cc-unset",
+      "task": "t16",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0106-cc-unset-t16-k2",
+      "cond": "cc-unset",
+      "task": "t16",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0166-cc-unset-t16-k3",
+      "cond": "cc-unset",
+      "task": "t16",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0049-cc-unset-t17-k1",
+      "cond": "cc-unset",
+      "task": "t17",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0109-cc-unset-t17-k2",
+      "cond": "cc-unset",
+      "task": "t17",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0169-cc-unset-t17-k3",
+      "cond": "cc-unset",
+      "task": "t17",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0052-cc-unset-t18-k1",
+      "cond": "cc-unset",
+      "task": "t18",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0112-cc-unset-t18-k2",
+      "cond": "cc-unset",
+      "task": "t18",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0172-cc-unset-t18-k3",
+      "cond": "cc-unset",
+      "task": "t18",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0055-cc-unset-t19-k1",
+      "cond": "cc-unset",
+      "task": "t19",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0115-cc-unset-t19-k2",
+      "cond": "cc-unset",
+      "task": "t19",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0175-cc-unset-t19-k3",
+      "cond": "cc-unset",
+      "task": "t19",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "cc-r0058-cc-unset-t20-k1",
+      "cond": "cc-unset",
+      "task": "t20",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "cc-r0118-cc-unset-t20-k2",
+      "cond": "cc-unset",
+      "task": "t20",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "cc-r0178-cc-unset-t20-k3",
+      "cond": "cc-unset",
+      "task": "t20",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0001-pi-deferred-t01-k1",
+      "cond": "pi-deferred",
+      "task": "t01",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0041-pi-deferred-t01-k2",
+      "cond": "pi-deferred",
+      "task": "t01",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0081-pi-deferred-t01-k3",
+      "cond": "pi-deferred",
+      "task": "t01",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0003-pi-deferred-t02-k1",
+      "cond": "pi-deferred",
+      "task": "t02",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0043-pi-deferred-t02-k2",
+      "cond": "pi-deferred",
+      "task": "t02",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0083-pi-deferred-t02-k3",
+      "cond": "pi-deferred",
+      "task": "t02",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0005-pi-deferred-t03-k1",
+      "cond": "pi-deferred",
+      "task": "t03",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0045-pi-deferred-t03-k2",
+      "cond": "pi-deferred",
+      "task": "t03",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0085-pi-deferred-t03-k3",
+      "cond": "pi-deferred",
+      "task": "t03",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0007-pi-deferred-t04-k1",
+      "cond": "pi-deferred",
+      "task": "t04",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0047-pi-deferred-t04-k2",
+      "cond": "pi-deferred",
+      "task": "t04",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0087-pi-deferred-t04-k3",
+      "cond": "pi-deferred",
+      "task": "t04",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0009-pi-deferred-t05-k1",
+      "cond": "pi-deferred",
+      "task": "t05",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0049-pi-deferred-t05-k2",
+      "cond": "pi-deferred",
+      "task": "t05",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0089-pi-deferred-t05-k3",
+      "cond": "pi-deferred",
+      "task": "t05",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0011-pi-deferred-t06-k1",
+      "cond": "pi-deferred",
+      "task": "t06",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0051-pi-deferred-t06-k2",
+      "cond": "pi-deferred",
+      "task": "t06",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0091-pi-deferred-t06-k3",
+      "cond": "pi-deferred",
+      "task": "t06",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0013-pi-deferred-t07-k1",
+      "cond": "pi-deferred",
+      "task": "t07",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0053-pi-deferred-t07-k2",
+      "cond": "pi-deferred",
+      "task": "t07",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0093-pi-deferred-t07-k3",
+      "cond": "pi-deferred",
+      "task": "t07",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0015-pi-deferred-t08-k1",
+      "cond": "pi-deferred",
+      "task": "t08",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0055-pi-deferred-t08-k2",
+      "cond": "pi-deferred",
+      "task": "t08",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0095-pi-deferred-t08-k3",
+      "cond": "pi-deferred",
+      "task": "t08",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0017-pi-deferred-t09-k1",
+      "cond": "pi-deferred",
+      "task": "t09",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0057-pi-deferred-t09-k2",
+      "cond": "pi-deferred",
+      "task": "t09",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0097-pi-deferred-t09-k3",
+      "cond": "pi-deferred",
+      "task": "t09",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0019-pi-deferred-t10-k1",
+      "cond": "pi-deferred",
+      "task": "t10",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0059-pi-deferred-t10-k2",
+      "cond": "pi-deferred",
+      "task": "t10",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0099-pi-deferred-t10-k3",
+      "cond": "pi-deferred",
+      "task": "t10",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0021-pi-deferred-t11-k1",
+      "cond": "pi-deferred",
+      "task": "t11",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0061-pi-deferred-t11-k2",
+      "cond": "pi-deferred",
+      "task": "t11",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0101-pi-deferred-t11-k3",
+      "cond": "pi-deferred",
+      "task": "t11",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0023-pi-deferred-t12-k1",
+      "cond": "pi-deferred",
+      "task": "t12",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0063-pi-deferred-t12-k2",
+      "cond": "pi-deferred",
+      "task": "t12",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0103-pi-deferred-t12-k3",
+      "cond": "pi-deferred",
+      "task": "t12",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0025-pi-deferred-t13-k1",
+      "cond": "pi-deferred",
+      "task": "t13",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0065-pi-deferred-t13-k2",
+      "cond": "pi-deferred",
+      "task": "t13",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0105-pi-deferred-t13-k3",
+      "cond": "pi-deferred",
+      "task": "t13",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0027-pi-deferred-t14-k1",
+      "cond": "pi-deferred",
+      "task": "t14",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0067-pi-deferred-t14-k2",
+      "cond": "pi-deferred",
+      "task": "t14",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0107-pi-deferred-t14-k3",
+      "cond": "pi-deferred",
+      "task": "t14",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0029-pi-deferred-t15-k1",
+      "cond": "pi-deferred",
+      "task": "t15",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0069-pi-deferred-t15-k2",
+      "cond": "pi-deferred",
+      "task": "t15",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0109-pi-deferred-t15-k3",
+      "cond": "pi-deferred",
+      "task": "t15",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0031-pi-deferred-t16-k1",
+      "cond": "pi-deferred",
+      "task": "t16",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0071-pi-deferred-t16-k2",
+      "cond": "pi-deferred",
+      "task": "t16",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0111-pi-deferred-t16-k3",
+      "cond": "pi-deferred",
+      "task": "t16",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0033-pi-deferred-t17-k1",
+      "cond": "pi-deferred",
+      "task": "t17",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0073-pi-deferred-t17-k2",
+      "cond": "pi-deferred",
+      "task": "t17",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0113-pi-deferred-t17-k3",
+      "cond": "pi-deferred",
+      "task": "t17",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0035-pi-deferred-t18-k1",
+      "cond": "pi-deferred",
+      "task": "t18",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0075-pi-deferred-t18-k2",
+      "cond": "pi-deferred",
+      "task": "t18",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0115-pi-deferred-t18-k3",
+      "cond": "pi-deferred",
+      "task": "t18",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0037-pi-deferred-t19-k1",
+      "cond": "pi-deferred",
+      "task": "t19",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0077-pi-deferred-t19-k2",
+      "cond": "pi-deferred",
+      "task": "t19",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0117-pi-deferred-t19-k3",
+      "cond": "pi-deferred",
+      "task": "t19",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0039-pi-deferred-t20-k1",
+      "cond": "pi-deferred",
+      "task": "t20",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0079-pi-deferred-t20-k2",
+      "cond": "pi-deferred",
+      "task": "t20",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0119-pi-deferred-t20-k3",
+      "cond": "pi-deferred",
+      "task": "t20",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0002-pi-direct-t01-k1",
+      "cond": "pi-direct",
+      "task": "t01",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0042-pi-direct-t01-k2",
+      "cond": "pi-direct",
+      "task": "t01",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0082-pi-direct-t01-k3",
+      "cond": "pi-direct",
+      "task": "t01",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0004-pi-direct-t02-k1",
+      "cond": "pi-direct",
+      "task": "t02",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0044-pi-direct-t02-k2",
+      "cond": "pi-direct",
+      "task": "t02",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0084-pi-direct-t02-k3",
+      "cond": "pi-direct",
+      "task": "t02",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0006-pi-direct-t03-k1",
+      "cond": "pi-direct",
+      "task": "t03",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0046-pi-direct-t03-k2",
+      "cond": "pi-direct",
+      "task": "t03",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0086-pi-direct-t03-k3",
+      "cond": "pi-direct",
+      "task": "t03",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0008-pi-direct-t04-k1",
+      "cond": "pi-direct",
+      "task": "t04",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0048-pi-direct-t04-k2",
+      "cond": "pi-direct",
+      "task": "t04",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0088-pi-direct-t04-k3",
+      "cond": "pi-direct",
+      "task": "t04",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0010-pi-direct-t05-k1",
+      "cond": "pi-direct",
+      "task": "t05",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0050-pi-direct-t05-k2",
+      "cond": "pi-direct",
+      "task": "t05",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0090-pi-direct-t05-k3",
+      "cond": "pi-direct",
+      "task": "t05",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0012-pi-direct-t06-k1",
+      "cond": "pi-direct",
+      "task": "t06",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0052-pi-direct-t06-k2",
+      "cond": "pi-direct",
+      "task": "t06",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0092-pi-direct-t06-k3",
+      "cond": "pi-direct",
+      "task": "t06",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0014-pi-direct-t07-k1",
+      "cond": "pi-direct",
+      "task": "t07",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0054-pi-direct-t07-k2",
+      "cond": "pi-direct",
+      "task": "t07",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0094-pi-direct-t07-k3",
+      "cond": "pi-direct",
+      "task": "t07",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0016-pi-direct-t08-k1",
+      "cond": "pi-direct",
+      "task": "t08",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0056-pi-direct-t08-k2",
+      "cond": "pi-direct",
+      "task": "t08",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0096-pi-direct-t08-k3",
+      "cond": "pi-direct",
+      "task": "t08",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0018-pi-direct-t09-k1",
+      "cond": "pi-direct",
+      "task": "t09",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0058-pi-direct-t09-k2",
+      "cond": "pi-direct",
+      "task": "t09",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0098-pi-direct-t09-k3",
+      "cond": "pi-direct",
+      "task": "t09",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0020-pi-direct-t10-k1",
+      "cond": "pi-direct",
+      "task": "t10",
+      "k": 1,
+      "pass": false
+    },
+    {
+      "run": "pi-r0060-pi-direct-t10-k2",
+      "cond": "pi-direct",
+      "task": "t10",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0100-pi-direct-t10-k3",
+      "cond": "pi-direct",
+      "task": "t10",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0022-pi-direct-t11-k1",
+      "cond": "pi-direct",
+      "task": "t11",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0062-pi-direct-t11-k2",
+      "cond": "pi-direct",
+      "task": "t11",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0102-pi-direct-t11-k3",
+      "cond": "pi-direct",
+      "task": "t11",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0024-pi-direct-t12-k1",
+      "cond": "pi-direct",
+      "task": "t12",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0064-pi-direct-t12-k2",
+      "cond": "pi-direct",
+      "task": "t12",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0104-pi-direct-t12-k3",
+      "cond": "pi-direct",
+      "task": "t12",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0026-pi-direct-t13-k1",
+      "cond": "pi-direct",
+      "task": "t13",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0066-pi-direct-t13-k2",
+      "cond": "pi-direct",
+      "task": "t13",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0106-pi-direct-t13-k3",
+      "cond": "pi-direct",
+      "task": "t13",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0028-pi-direct-t14-k1",
+      "cond": "pi-direct",
+      "task": "t14",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0068-pi-direct-t14-k2",
+      "cond": "pi-direct",
+      "task": "t14",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0108-pi-direct-t14-k3",
+      "cond": "pi-direct",
+      "task": "t14",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0030-pi-direct-t15-k1",
+      "cond": "pi-direct",
+      "task": "t15",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0070-pi-direct-t15-k2",
+      "cond": "pi-direct",
+      "task": "t15",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0110-pi-direct-t15-k3",
+      "cond": "pi-direct",
+      "task": "t15",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0032-pi-direct-t16-k1",
+      "cond": "pi-direct",
+      "task": "t16",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0072-pi-direct-t16-k2",
+      "cond": "pi-direct",
+      "task": "t16",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0112-pi-direct-t16-k3",
+      "cond": "pi-direct",
+      "task": "t16",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0034-pi-direct-t17-k1",
+      "cond": "pi-direct",
+      "task": "t17",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0074-pi-direct-t17-k2",
+      "cond": "pi-direct",
+      "task": "t17",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0114-pi-direct-t17-k3",
+      "cond": "pi-direct",
+      "task": "t17",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0036-pi-direct-t18-k1",
+      "cond": "pi-direct",
+      "task": "t18",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0076-pi-direct-t18-k2",
+      "cond": "pi-direct",
+      "task": "t18",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0116-pi-direct-t18-k3",
+      "cond": "pi-direct",
+      "task": "t18",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0038-pi-direct-t19-k1",
+      "cond": "pi-direct",
+      "task": "t19",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0078-pi-direct-t19-k2",
+      "cond": "pi-direct",
+      "task": "t19",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0118-pi-direct-t19-k3",
+      "cond": "pi-direct",
+      "task": "t19",
+      "k": 3,
+      "pass": true
+    },
+    {
+      "run": "pi-r0040-pi-direct-t20-k1",
+      "cond": "pi-direct",
+      "task": "t20",
+      "k": 1,
+      "pass": true
+    },
+    {
+      "run": "pi-r0080-pi-direct-t20-k2",
+      "cond": "pi-direct",
+      "task": "t20",
+      "k": 2,
+      "pass": true
+    },
+    {
+      "run": "pi-r0120-pi-direct-t20-k3",
+      "cond": "pi-direct",
+      "task": "t20",
+      "k": 3,
+      "pass": true
+    }
+  ]
+}

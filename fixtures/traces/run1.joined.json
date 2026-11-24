@@ -1,0 +1,221 @@
+{
+  "run_id": "fixture-run1",
+  "root_pid": 1000,
+  "calls": [
+    {
+      "id": "c1",
+      "name": "write_file",
+      "input": {
+        "path": "app/config.toml"
+      },
+      "output": "wrote 21 bytes",
+      "ts_start": 1764000100.05,
+      "ts_end": 1764000100.5,
+      "effects": [
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "open",
+          "ts": 1764000100.1,
+          "pid": 1000,
+          "path": "/work/app/config.toml",
+          "flags": [
+            "O_WRONLY",
+            "O_CREAT",
+            "O_TRUNC"
+          ]
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "write",
+          "ts": 1764000100.11,
+          "pid": 1000,
+          "path": "/work/app/config.toml",
+          "bytes": "[server]\nport = 9090\n",
+          "n": 21
+        },
+        {
+          "source": "strace",
+          "ok": false,
+          "kind": "open",
+          "ts": 1764000100.13,
+          "pid": 1000,
+          "path": "/work/missing.txt",
+          "flags": [
+            "O_RDONLY"
+          ],
+          "errno": "ENOENT"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "name": "bash",
+      "input": {
+        "command": "python3 tests/check_task.py > out/check.log &"
+      },
+      "output": "",
+      "ts_start": 1764000101,
+      "ts_end": 1764000102,
+      "effects": [
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "exec",
+          "ts": 1764000101.01,
+          "pid": 1001,
+          "path": "/bin/sh",
+          "argv": [
+            "sh",
+            "-c",
+            "python3 tests/check_task.py > out/check.log"
+          ]
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "open",
+          "ts": 1764000101.02,
+          "pid": 1001,
+          "path": "/work/out/check.log",
+          "flags": [
+            "O_WRONLY",
+            "O_CREAT",
+            "O_TRUNC"
+          ]
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "exec",
+          "ts": 1764000101.04,
+          "pid": 1002,
+          "path": "/usr/bin/python3",
+          "argv": [
+            "python3",
+            "tests/check_task.py"
+          ]
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "write",
+          "ts": 1764000101.1,
+          "pid": 1002,
+          "path": "/work/out/check.log",
+          "bytes": "PASS\n",
+          "n": 5
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "unlink",
+          "ts": 1764000103.51,
+          "pid": 1003,
+          "path": "/work/logs/a.log"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "name": "bash",
+      "input": {
+        "command": "mv lib/strutil.py lib/textutil.py && curl -s http://127.0.0.1:43111/notify"
+      },
+      "output": "{\"received\":true}",
+      "ts_start": 1764000103.9,
+      "ts_end": 1764000104.1,
+      "effects": [
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "rename",
+          "ts": 1764000104,
+          "pid": 1000,
+          "path": "/work/lib/strutil.py",
+          "path2": "/work/lib/textutil.py"
+        },
+        {
+          "source": "strace",
+          "ok": true,
+          "kind": "connect",
+          "ts": 1764000104.06,
+          "pid": 1000,
+          "addr": "127.0.0.1:43111"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "name": "fetch",
+      "input": {
+        "url": "http://127.0.0.1:40959/rates.json"
+      },
+      "error": "connection refused",
+      "ts_start": 1764000104.4,
+      "ts_end": 1764000104.6,
+      "effects": [
+        {
+          "source": "audit-io_uring",
+          "ok": true,
+          "kind": "open",
+          "ts": 1764000104.5,
+          "pid": 1000,
+          "path": "/work/data/rates.json",
+          "flags": null,
+          "created": true
+        },
+        {
+          "source": "audit-io_uring",
+          "ok": false,
+          "kind": "connect",
+          "ts": 1764000104.55,
+          "pid": 1000,
+          "addr": "127.0.0.1:40959",
+          "errno": "ECONNREFUSED"
+        }
+      ]
+    }
+  ],
+  "unattributed": [
+    {
+      "source": "strace",
+      "ok": true,
+      "kind": "open",
+      "ts": 1764000105,
+      "pid": 1000,
+      "path": "/work/stray.txt",
+      "flags": [
+        "O_WRONLY",
+        "O_CREAT"
+      ]
+    }
+  ],
+  "procs": [
+    {
+      "pid": 1000,
+      "ppid": null,
+      "ts_start": null,
+      "ts_end": 1764000106
+    },
+    {
+      "pid": 1001,
+      "ppid": 1000,
+      "ts_start": 1764000101,
+      "ts_end": 1764000101.4
+    },
+    {
+      "pid": 1002,
+      "ppid": 1001,
+      "ts_start": 1764000101.03,
+      "ts_end": 1764000101.2
+    },
+    {
+      "pid": 1003,
+      "ppid": 1001,
+      "ts_start": 1764000101.3,
+      "ts_end": 1764000103.52
+    }
+  ]
+}

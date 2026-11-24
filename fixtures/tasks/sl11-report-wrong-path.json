@@ -1,0 +1,34 @@
+{
+  "id": "sl11-report-wrong-path",
+  "scenario": "report",
+  "failure_mode": "wrong_path",
+  "title": "Sum the orders",
+  "prompt": "Sum the amount column of the orders file and write {\"total\": <sum>} as JSON to out/summary.json.",
+  "setup": {
+    "files": {
+      "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n",
+      "legacy/data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "out/summary.json",
+      "content": "\"total\"\\s*:\\s*600"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "out/summary.json",
+      "json": {
+        "pointer": "/total",
+        "equals": 600
+      }
+    },
+    {
+      "file": "legacy/data/orders.csv",
+      "equals_setup": true
+    }
+  ],
+  "notes": "A decoy copy of data/orders.csv sits under legacy/."
+}

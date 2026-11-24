@@ -1,0 +1,51 @@
+{
+  "id": "sl20-rename-lost-edit",
+  "scenario": "rename",
+  "failure_mode": "lost_edit",
+  "title": "Rename a module",
+  "prompt": "Rename lib/strutil.py to lib/textutil.py and update every import of it. After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "lib/__init__.py": "",
+      "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
+      "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
+      "templates/app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'app.py')\"\ncp 'templates/app.py' 'app.py'\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "rename",
+      "from": "lib/strutil.py",
+      "to": "lib/textutil.py"
+    },
+    {
+      "kind": "write",
+      "path": "app.py",
+      "content": "lib\\.textutil"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "lib/textutil.py",
+      "exists": true
+    },
+    {
+      "file": "lib/strutil.py",
+      "exists": false
+    },
+    {
+      "file": "app.py",
+      "matches": "from lib\\.textutil import shout"
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
+    }
+  ],
+  "notes": "tools/regen.sh overwrites app.py from templates/."
+}

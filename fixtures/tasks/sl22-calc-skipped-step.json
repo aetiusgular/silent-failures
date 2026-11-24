@@ -1,0 +1,54 @@
+{
+  "id": "sl22-calc-skipped-step",
+  "scenario": "calc",
+  "failure_mode": "skipped_step",
+  "title": "Fix the add function",
+  "prompt": "calc.add returns the wrong result. Fix it so tests/test_calc.py passes, then run the tests with `python3 -m unittest tests.test_calc` and save the output to out/test.log. Then append the line `sl22-calc-skipped-step done` to NOTES.md.",
+  "setup": {
+    "files": {
+      "calc.py": "def add(a, b):\n    return a - b\n",
+      "tests/__init__.py": "",
+      "tests/test_calc.py": "import os, unittest\nos.makedirs('out', exist_ok=True)\nopen('out/.test_calc.ran', 'w').write('ran\\n')\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n",
+      "NOTES.md": "# Notes\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "calc.py",
+      "content": "a \\+ b"
+    },
+    {
+      "kind": "exec",
+      "argv": "unittest"
+    },
+    {
+      "kind": "write",
+      "path": "out/test.log"
+    },
+    {
+      "kind": "write",
+      "path": "NOTES.md",
+      "content": "sl22-calc-skipped-step done"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "calc.py",
+      "matches": "return a \\+ b"
+    },
+    {
+      "file": "out/test.log",
+      "matches": "(?m)^OK\\s*$"
+    },
+    {
+      "file": "out/.test_calc.ran",
+      "exists": true
+    },
+    {
+      "file": "NOTES.md",
+      "matches": "(?m)^sl22-calc-skipped-step done\\s*$"
+    }
+  ],
+  "notes": ""
+}

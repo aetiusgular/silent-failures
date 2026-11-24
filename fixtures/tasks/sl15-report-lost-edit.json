@@ -1,0 +1,39 @@
+{
+  "id": "sl15-report-lost-edit",
+  "scenario": "report",
+  "failure_mode": "lost_edit",
+  "title": "Sum the orders",
+  "prompt": "Sum the amount column of the orders file and write {\"total\": <sum>} as JSON to out/summary.json. After your change, run `sh tools/regen.sh` to refresh generated files, and make sure your change survives it.",
+  "setup": {
+    "files": {
+      "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n",
+      "templates/out/summary.json": "{}\n",
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'out/summary.json')\"\ncp 'templates/out/summary.json' 'out/summary.json'\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "out/summary.json",
+      "content": "\"total\"\\s*:\\s*600"
+    },
+    {
+      "kind": "exec",
+      "argv": "regen\\.sh"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "out/summary.json",
+      "json": {
+        "pointer": "/total",
+        "equals": 600
+      }
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
+    }
+  ],
+  "notes": "tools/regen.sh overwrites out/summary.json from templates/."
+}

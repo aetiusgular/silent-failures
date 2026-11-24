@@ -1,0 +1,40 @@
+{
+  "id": "sl02-cfg-skipped-step",
+  "scenario": "cfg",
+  "failure_mode": "skipped_step",
+  "title": "Change the service port",
+  "prompt": "In the service config, change the listen port from 8080 to 9090. Keep every other setting as it is. Then append the line `sl02-cfg-skipped-step done` to NOTES.md.",
+  "setup": {
+    "files": {
+      "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
+      "NOTES.md": "# Notes\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "app/config.toml",
+      "content": "port\\s*=\\s*9090"
+    },
+    {
+      "kind": "write",
+      "path": "NOTES.md",
+      "content": "sl02-cfg-skipped-step done"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^port\\s*=\\s*9090\\s*$"
+    },
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^workers\\s*=\\s*4\\s*$"
+    },
+    {
+      "file": "NOTES.md",
+      "matches": "(?m)^sl02-cfg-skipped-step done\\s*$"
+    }
+  ],
+  "notes": ""
+}

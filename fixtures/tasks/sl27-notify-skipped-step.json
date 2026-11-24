@@ -1,0 +1,55 @@
+{
+  "id": "sl27-notify-skipped-step",
+  "scenario": "notify",
+  "failure_mode": "skipped_step",
+  "title": "Post a build notice",
+  "prompt": "POST the JSON {\"build\": \"ok\"} to {{stub.hooks}}/notify. Then append the line `sl27-notify-skipped-step done` to NOTES.md.",
+  "setup": {
+    "files": {
+      "NOTES.md": "# Notes\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/notify",
+          "responses": [
+            {
+              "status": 200,
+              "body": "{\"received\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    },
+    {
+      "kind": "write",
+      "path": "NOTES.md",
+      "content": "sl27-notify-skipped-step done"
+    }
+  ],
+  "oracle": [
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/notify",
+      "status": "2xx",
+      "body_matches": "\"build\"\\s*:\\s*\"ok\"",
+      "min_count": 1
+    },
+    {
+      "file": "NOTES.md",
+      "matches": "(?m)^sl27-notify-skipped-step done\\s*$"
+    }
+  ],
+  "notes": ""
+}

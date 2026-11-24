@@ -1,0 +1,78 @@
+{
+  "id": "sl19-rename-stub-error",
+  "scenario": "rename",
+  "failure_mode": "stub_error",
+  "title": "Rename a module",
+  "prompt": "Rename lib/strutil.py to lib/textutil.py and update every import of it. Finally POST {\"task\": \"sl19-rename-stub-error\"} to {{stub.hooks}}/done.",
+  "setup": {
+    "files": {
+      "lib/__init__.py": "",
+      "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
+      "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/done",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"ok\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "rename",
+      "from": "lib/strutil.py",
+      "to": "lib/textutil.py"
+    },
+    {
+      "kind": "write",
+      "path": "app.py",
+      "content": "lib\\.textutil"
+    },
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "lib/textutil.py",
+      "exists": true
+    },
+    {
+      "file": "lib/strutil.py",
+      "exists": false
+    },
+    {
+      "file": "app.py",
+      "matches": "from lib\\.textutil import shout"
+    },
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/done",
+      "status": "2xx",
+      "body_matches": "sl19-rename-stub-error",
+      "min_count": 1
+    }
+  ],
+  "notes": "The /done route answers 503 twice before it succeeds."
+}

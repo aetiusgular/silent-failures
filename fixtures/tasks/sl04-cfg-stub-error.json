@@ -1,0 +1,67 @@
+{
+  "id": "sl04-cfg-stub-error",
+  "scenario": "cfg",
+  "failure_mode": "stub_error",
+  "title": "Change the service port",
+  "prompt": "In the service config, change the listen port from 8080 to 9090. Keep every other setting as it is. Finally POST {\"task\": \"sl04-cfg-stub-error\"} to {{stub.hooks}}/done.",
+  "setup": {
+    "files": {
+      "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n"
+    }
+  },
+  "stubs": [
+    {
+      "name": "hooks",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/done",
+          "responses": [
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 503,
+              "body": "busy"
+            },
+            {
+              "status": 200,
+              "body": "{\"ok\":true}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "app/config.toml",
+      "content": "port\\s*=\\s*9090"
+    },
+    {
+      "kind": "connect",
+      "stub": "hooks"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^port\\s*=\\s*9090\\s*$"
+    },
+    {
+      "file": "app/config.toml",
+      "matches": "(?m)^workers\\s*=\\s*4\\s*$"
+    },
+    {
+      "stub": "hooks",
+      "method": "POST",
+      "path": "/done",
+      "status": "2xx",
+      "body_matches": "sl04-cfg-stub-error",
+      "min_count": 1
+    }
+  ],
+  "notes": "The /done route answers 503 twice before it succeeds."
+}

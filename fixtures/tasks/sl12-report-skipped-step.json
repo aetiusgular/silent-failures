@@ -1,0 +1,39 @@
+{
+  "id": "sl12-report-skipped-step",
+  "scenario": "report",
+  "failure_mode": "skipped_step",
+  "title": "Sum the orders",
+  "prompt": "Sum the amount column of the orders file and write {\"total\": <sum>} as JSON to out/summary.json. Then append the line `sl12-report-skipped-step done` to NOTES.md.",
+  "setup": {
+    "files": {
+      "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n",
+      "NOTES.md": "# Notes\n"
+    }
+  },
+  "expected_effects": [
+    {
+      "kind": "write",
+      "path": "out/summary.json",
+      "content": "\"total\"\\s*:\\s*600"
+    },
+    {
+      "kind": "write",
+      "path": "NOTES.md",
+      "content": "sl12-report-skipped-step done"
+    }
+  ],
+  "oracle": [
+    {
+      "file": "out/summary.json",
+      "json": {
+        "pointer": "/total",
+        "equals": 600
+      }
+    },
+    {
+      "file": "NOTES.md",
+      "matches": "(?m)^sl12-report-skipped-step done\\s*$"
+    }
+  ],
+  "notes": ""
+}
