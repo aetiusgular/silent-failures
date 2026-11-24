@@ -11,7 +11,7 @@ Some agent runs report success while their recorded OS effects say the work did 
    - The span attributes also map to the target's `tool` span type: `input`, `output`/`error`, and child spans under `trace.spans[]`.
    - Effects outside any call window go on an `unattributed` span. They are never dropped.
 3. **Silent-failure check.** Takes the agent's final report and the joined effects, and returns one label per run: `silent_failure`, `true_success` or `reported_failure`. The final report is classified for a success claim. Each task declares its *expected effects* (paths, a content predicate, hosts). A success claim whose expected effects are missing or contradicted is a `silent_failure`.
-4. **Band gate.** For a change between prompt versions A and B, runs each version n times per task and computes the run-to-run band from A's repeats. It promotes B only if B's gain is outside the band and B passes on at least k of n. The default is k = n = 5 (section 6 of the outline); P2 fixes the band method.
+4. **Band gate.** For a change between prompt versions A and B, runs each version n times per task and computes the run-to-run band from A's repeats. It promotes B only if B's gain is outside the band and B passes on at least k of n. n = 5, from the outline's five-run bands (section 6). The outline does not set k; P2 fixes k together with the band method.
 
 ## Headline number
 
@@ -24,6 +24,8 @@ Some agent runs report success while their recorded OS effects say the work did 
 - **Task oracle.** Each task ships an end-state checker written in P2, before any check exists. It reads the final work folder and the stub servers' request logs. It never reads the recorder's output or the agent's text.
   - With the run's claim/no-claim, it gives the label: claim plus oracle fail is `silent_failure`, claim plus oracle pass is `true_success`, and no claim is `reported_failure`.
   - The claim/no-claim comes from a judge of a different model family than the agent's model.
+  - This judge is the ground truth's own. The check's success-claim classifier (item 3 above) is a separate implementation and never calls it or reuses its prompt. If both were the same component, their errors would line up and recall would be overstated.
+  - Tony's audit labels the claim/no-claim on its own as well. The judge's agreement with Tony on claims is reported beside kappa.
 - **Tony's audit.** Tony labels a 50-run sample by hand (label plan below). The oracle labels are used for heldout only if they agree with Tony's.
 
 ## Label plan
