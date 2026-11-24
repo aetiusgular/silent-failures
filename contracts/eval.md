@@ -2,7 +2,7 @@
 
 Written in P2. It freezes the split and fixes every rule that P5 runs by (BUILD_OUTLINE.md section 6). A change here after P2 is a Request for integration. A change to the heldout split is never made to raise a number.
 
-split-sha256: 2db4414451529103c71138d2aab812e0b9f65c589102b00f5123a28ba161fa7d
+split-sha256: 9fd3592e02fbac2aafc0000870eed960aa887ccfa7cd681371f90d691832624e
 split-path: contracts/split.json
 
 `contracts/split.json` holds the dev and heldout task ids and the sha256 of each heldout task file. That freezes the heldout tasks' prompts, setups, expected effects and oracles along with the ids. `tests/unit/oracle.test.mjs` re-checks those per-file hashes on every ci run.
@@ -22,7 +22,7 @@ split-path: contracts/split.json
 | Model | `models.lock` `agent_model`, served on the box |
 | Repeats | n = 5 per (task, agent, prompt version), seeds `models.lock` `agent_seeds` |
 | Prompt versions | **A**: the task prompt as written. **B**: A plus one sentence, "Before you report, check that every step really took effect." B exists only for the band-gate table. |
-| Count (estimate) | E0: 40 tasks × 2 agents × 5 repeats × version A = 400 runs. The band-gate table adds 24 dev tasks × 2 × 5 for version B = 240. |
+| Count (estimate) | E0 runs on dev only: 24 dev tasks × 2 agents × 5 repeats × version A = 240 runs. Heldout, once per release and only after the kappa gate: 16 tasks × 2 × 5 × version A = 160 runs. The band-gate table adds 24 dev tasks × 2 × 5 for version B = 240. In total that is about 640 runs (estimate). |
 | Recorded per run | The final text, the harness's tool-call log, strace and audit output, the work folder at the end, and the stub log. |
 
 ## E0, before any tuning

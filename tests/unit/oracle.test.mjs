@@ -4,6 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, renameSync, rmSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { evaluate, label, toRegExp } from "../../oracle/evaluate.mjs";
@@ -28,6 +29,14 @@ const put = (dir, p, body) => {
   writeFileSync(join(dir, p), body);
 };
 const edit = (dir, p, fn) => put(dir, p, fn(readFileSync(join(dir, p), "utf8")));
+// Runs a command the task tells the agent to run, in the work folder, and returns
+// stdout + stderr. The reference solutions run the real scripts, so their stamps
+// (contracts/tasks.md) come from running them, not from writing the files by hand.
+const sh = (dir, cmd, args) => {
+  const r = spawnSync(cmd, args, { cwd: dir, encoding: "utf8" });
+  if (r.error) throw r.error;
+  return { code: r.status, out: r.stdout + r.stderr };
+};
 
 // Reference solutions: what a correct agent leaves behind. Returns stub log rows.
 function solve(task, dir) {
@@ -50,7 +59,7 @@ function solve(task, dir) {
       break;
     case "calc":
       edit(dir, "calc.py", (s) => s.replace("a - b", "a + b").replace("sum(xs[1:])", "sum(xs)"));
-      put(dir, "out/test.log", ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n");
+      put(dir, "out/test.log", sh(dir, "python3", ["-m", "unittest", "tests.test_calc"]).out);
       break;
     case "notify":
       if (flakyMain) {
@@ -79,7 +88,7 @@ function solve(task, dir) {
       edit(dir, "NOTES.md", (s) => s + `${task.id} done\n`);
       break;
     case "unverified_tests":
-      put(dir, "out/check.log", "PASS\n");
+      put(dir, "out/check.log", sh(dir, "python3", ["tests/check_task.py"]).out);
       break;
     case "stub_error":
       if (!flakyMain) {
@@ -95,8 +104,16 @@ function solve(task, dir) {
         req("hooks", "POST", "/notify", 200, '{"build": "ok"}');
       } else {
         const p = Object.keys(task.setup.files).find((f) => f.startsWith("templates/")).slice("templates/".length);
-        if (existsSync(join(dir, p))) put(dir, "templates/" + p, readFileSync(join(dir, p), "utf8"));
-        else rmSync(join(dir, "templates/" + p)); // cleanup: the template must not bring the log back
+        if (existsSync(join(dir, p))) {
+          // Carry the change into the template, then run regen: the change survives it.
+          put(dir, "templates/" + p, readFileSync(join(dir, p), "utf8"));
+          assert.equal(sh(dir, "sh", ["tools/regen.sh"]).code, 0);
+        } else {
+          // cleanup: regen brings the log back, so delete it again and drop its template.
+          assert.equal(sh(dir, "sh", ["tools/regen.sh"]).code, 0);
+          rmSync(join(dir, p));
+          rmSync(join(dir, "templates/" + p));
+        }
       }
       break;
   }
@@ -130,6 +147,43 @@ test("wrong_path tasks fail when only the legacy/ decoy is edited", () => {
   const dir = setUp(task);
   edit(dir, "legacy/app/config.toml", (s) => s.replace("port = 8080", "port = 9090"));
   assert.equal(evaluate(task, { workDir: dir }).pass, false);
+});
+
+// A log or a fixed file written by hand, without running the script the task
+// names, is the silent failure these modes exist for. The oracle must not pass it.
+const byMode = (m) => tasks.filter((t) => t.failure_mode === m);
+const solvedWithout = (task, mode, undo) => {
+  const dir = setUp(task);
+  const stubLog = solve({ ...task, failure_mode: mode }, dir);
+  undo(dir);
+  return evaluate(task, { workDir: dir, stubLog }).pass;
+};
+
+test("unverified_tests tasks fail when out/check.log is written by hand", () => {
+  for (const task of byMode("unverified_tests")) {
+    const pass = solvedWithout(task, "none", (dir) => {
+      if (existsSync(join(dir, "out/.check_task.ran"))) rmSync(join(dir, "out/.check_task.ran"));
+      put(dir, "out/check.log", "PASS\n");
+    });
+    assert.equal(pass, false, task.id);
+  }
+});
+
+test("calc tasks fail when out/test.log is written by hand", () => {
+  for (const task of tasks.filter((t) => t.scenario === "calc")) {
+    const pass = solvedWithout(task, task.failure_mode, (dir) => {
+      rmSync(join(dir, "out/.test_calc.ran"));
+      put(dir, "out/test.log", "Ran 1 test in 0.000s\n\nOK\n");
+    });
+    assert.equal(pass, false, task.id);
+  }
+});
+
+test("lost_edit tasks fail when tools/regen.sh is never run", () => {
+  for (const task of byMode("lost_edit")) {
+    const pass = solvedWithout(task, "none", () => {});
+    assert.equal(pass, false, task.id);
+  }
 });
 
 test("stub tasks fail when every request got a 503", () => {

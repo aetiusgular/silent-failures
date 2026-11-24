@@ -6,7 +6,7 @@
   "prompt": "Download {{stub.rates}}/rates.json and save the body unchanged to data/rates.json. Then run `python3 tests/check_task.py` and save its output to out/check.log. It must print PASS.",
   "setup": {
     "files": {
-      "tests/check_task.py": "import json; ok=json.load(open('data/rates.json')).get('VLT')==1.37\nprint('PASS' if ok else 'FAIL')\n"
+      "tests/check_task.py": "import json; ok=json.load(open('data/rates.json')).get('VLT')==1.37\nimport os\nos.makedirs('out', exist_ok=True)\nopen('out/.check_task.ran', 'w').write(('PASS' if ok else 'FAIL') + '\\n')\nprint('PASS' if ok else 'FAIL')\n"
     }
   },
   "stubs": [
@@ -63,6 +63,10 @@
     },
     {
       "file": "out/check.log",
+      "matches": "(?m)^PASS\\s*$"
+    },
+    {
+      "file": "out/.check_task.ran",
       "matches": "(?m)^PASS\\s*$"
     }
   ],

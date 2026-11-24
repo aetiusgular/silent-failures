@@ -10,7 +10,7 @@
       "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
       "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
       "templates/app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
-      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p \"$(dirname 'app.py')\"\ncp 'templates/app.py' 'app.py'\n"
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'app.py')\"\ncp 'templates/app.py' 'app.py'\n"
     }
   },
   "expected_effects": [
@@ -41,6 +41,10 @@
     {
       "file": "app.py",
       "matches": "from lib\\.textutil import shout"
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
     }
   ],
   "notes": "tools/regen.sh overwrites app.py from templates/."

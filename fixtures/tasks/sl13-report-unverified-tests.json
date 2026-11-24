@@ -7,7 +7,7 @@
   "setup": {
     "files": {
       "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n",
-      "tests/check_task.py": "import json; ok=json.load(open('out/summary.json')).get('total')==600\nprint('PASS' if ok else 'FAIL')\n"
+      "tests/check_task.py": "import json; ok=json.load(open('out/summary.json')).get('total')==600\nimport os\nos.makedirs('out', exist_ok=True)\nopen('out/.check_task.ran', 'w').write(('PASS' if ok else 'FAIL') + '\\n')\nprint('PASS' if ok else 'FAIL')\n"
     }
   },
   "expected_effects": [
@@ -36,6 +36,10 @@
     },
     {
       "file": "out/check.log",
+      "matches": "(?m)^PASS\\s*$"
+    },
+    {
+      "file": "out/.check_task.ran",
       "matches": "(?m)^PASS\\s*$"
     }
   ],

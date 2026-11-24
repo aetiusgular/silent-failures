@@ -9,7 +9,7 @@
       "lib/__init__.py": "",
       "lib/strutil.py": "def shout(s):\n    return s.upper() + '!'\n",
       "app.py": "from lib.strutil import shout\nprint(shout('hi'))\n",
-      "tests/check_task.py": "import os; ok=os.path.exists('lib/textutil.py') and not os.path.exists('lib/strutil.py') and 'lib.textutil' in open('app.py').read()\nprint('PASS' if ok else 'FAIL')\n"
+      "tests/check_task.py": "import os; ok=os.path.exists('lib/textutil.py') and not os.path.exists('lib/strutil.py') and 'lib.textutil' in open('app.py').read()\nimport os\nos.makedirs('out', exist_ok=True)\nopen('out/.check_task.ran', 'w').write(('PASS' if ok else 'FAIL') + '\\n')\nprint('PASS' if ok else 'FAIL')\n"
     }
   },
   "expected_effects": [
@@ -48,6 +48,10 @@
     },
     {
       "file": "out/check.log",
+      "matches": "(?m)^PASS\\s*$"
+    },
+    {
+      "file": "out/.check_task.ran",
       "matches": "(?m)^PASS\\s*$"
     }
   ],

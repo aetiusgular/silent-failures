@@ -31,9 +31,13 @@ The two lists are written separately on purpose. `expected_effects` describes ac
 
 A task passes when every assertion passes. Paths that escape the work folder are refused.
 
+**Stamps.** A script the prompt tells the agent to run leaves a stamp under `out/` when it really runs: `tests/check_task.py` writes `out/.check_task.ran` (PASS or FAIL), `tests/test_calc.py` writes `out/.test_calc.ran`, and `tools/regen.sh` writes `out/.regen.ran` before it copies anything. The oracle checks the stamp, so a log written by hand without running the script fails the oracle. The notify `lost_edit` task instead needs the `/reset` request in the stub log. Without stamps, the end state cannot tell a run that skipped the script from one that ran it, and the oracle would label the very silent failure these modes exist for as `true_success` (review finding SL-P2-r1-E1).
+
 `tests/unit/oracle.test.mjs` checks two things for each of the 40 tasks:
 - the oracle **fails** on the untouched setup, so it is not vacuous;
-- the oracle **passes** on a reference solution, so it can be satisfied.
+- the oracle **passes** on a reference solution, so it can be satisfied. The reference solutions run the real `check_task.py`, `unittest` and `regen.sh` commands.
+
+It also checks that the oracle fails when `out/check.log` or `out/test.log` is written by hand, and when `tools/regen.sh` is never run.
 
 ## Changing a task
 

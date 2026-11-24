@@ -8,7 +8,7 @@
     "files": {
       "data/orders.csv": "id,amount\n1,120\n2,75\n3,310\n4,95\n",
       "templates/out/summary.json": "{}\n",
-      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p \"$(dirname 'out/summary.json')\"\ncp 'templates/out/summary.json' 'out/summary.json'\n"
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'out/summary.json')\"\ncp 'templates/out/summary.json' 'out/summary.json'\n"
     }
   },
   "expected_effects": [
@@ -29,6 +29,10 @@
         "pointer": "/total",
         "equals": 600
       }
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
     }
   ],
   "notes": "tools/regen.sh overwrites out/summary.json from templates/."

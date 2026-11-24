@@ -8,7 +8,7 @@
     "files": {
       "calc.py": "def add(a, b):\n    return a - b\n",
       "tests/__init__.py": "",
-      "tests/test_calc.py": "import unittest\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n"
+      "tests/test_calc.py": "import os, unittest\nos.makedirs('out', exist_ok=True)\nopen('out/.test_calc.ran', 'w').write('ran\\n')\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n"
     }
   },
   "stubs": [
@@ -63,6 +63,10 @@
     {
       "file": "out/test.log",
       "matches": "(?m)^OK\\s*$"
+    },
+    {
+      "file": "out/.test_calc.ran",
+      "exists": true
     },
     {
       "stub": "hooks",

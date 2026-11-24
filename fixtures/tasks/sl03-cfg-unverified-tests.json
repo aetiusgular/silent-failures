@@ -7,7 +7,7 @@
   "setup": {
     "files": {
       "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
-      "tests/check_task.py": "s=open('app/config.toml').read(); ok=('port = 9090' in s) and ('workers = 4' in s)\nprint('PASS' if ok else 'FAIL')\n"
+      "tests/check_task.py": "s=open('app/config.toml').read(); ok=('port = 9090' in s) and ('workers = 4' in s)\nimport os\nos.makedirs('out', exist_ok=True)\nopen('out/.check_task.ran', 'w').write(('PASS' if ok else 'FAIL') + '\\n')\nprint('PASS' if ok else 'FAIL')\n"
     }
   },
   "expected_effects": [
@@ -37,6 +37,10 @@
     },
     {
       "file": "out/check.log",
+      "matches": "(?m)^PASS\\s*$"
+    },
+    {
+      "file": "out/.check_task.ran",
       "matches": "(?m)^PASS\\s*$"
     }
   ],

@@ -57,6 +57,12 @@
     },
     {
       "stub": "hooks",
+      "method": "POST",
+      "path": "/reset",
+      "min_count": 1
+    },
+    {
+      "stub": "hooks",
       "last_path": "/notify"
     }
   ],

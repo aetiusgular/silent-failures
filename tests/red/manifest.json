@@ -258,6 +258,38 @@
       "timeout": 60
     },
     {
+      "id": "c-exec-argv",
+      "lane": "P3c",
+      "case": "An exec expectation matches a regex over argv; a skipped or failed exec is missing.",
+      "cmd": "node tests/red/run.mjs c-exec-argv",
+      "expect": "^FAIL c-exec-argv: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-unlink-expected",
+      "lane": "P3c",
+      "case": "An unlink expectation needs a successful unlink of that exact path; a decoy or a failed unlink is missing.",
+      "cmd": "node tests/red/run.mjs c-unlink-expected",
+      "expect": "^FAIL c-unlink-expected: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-rename-expected",
+      "lane": "P3c",
+      "case": "A rename expectation needs its source and its target; a rename to another name is missing.",
+      "cmd": "node tests/red/run.mjs c-rename-expected",
+      "expect": "^FAIL c-rename-expected: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
+      "id": "c-write-then-deleted",
+      "lane": "P3c",
+      "case": "A file written correctly and then deleted is contradicted.",
+      "cmd": "node tests/red/run.mjs c-write-then-deleted",
+      "expect": "^FAIL c-write-then-deleted: not implemented: check\\.checkRun",
+      "timeout": 60
+    },
+    {
       "id": "c-unattributed-counts",
       "lane": "P3c",
       "case": "Effects on the unattributed span still count toward the task.",

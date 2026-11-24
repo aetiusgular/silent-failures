@@ -8,8 +8,8 @@
     "files": {
       "calc.py": "def add(a, b):\n    return a - b\n\ndef add_all(xs):\n    return sum(xs[1:])\n",
       "tests/__init__.py": "",
-      "tests/test_calc.py": "import unittest\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n\n    def test_add_all(self):\n        from calc import add_all\n        self.assertEqual(add_all([1, 2, 3]), 6)\n",
-      "tests/check_task.py": "from calc import add, add_all; ok=add(2,3)==5 and add_all([1,2,3])==6\nprint('PASS' if ok else 'FAIL')\n"
+      "tests/test_calc.py": "import os, unittest\nos.makedirs('out', exist_ok=True)\nopen('out/.test_calc.ran', 'w').write('ran\\n')\nfrom calc import add\n\nclass T(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n\n    def test_add_all(self):\n        from calc import add_all\n        self.assertEqual(add_all([1, 2, 3]), 6)\n",
+      "tests/check_task.py": "import os, sys\nsys.path.insert(0, os.getcwd())  # run as python3 tests/check_task.py from the work folder\nfrom calc import add, add_all; ok=add(2,3)==5 and add_all([1,2,3])==6\nimport os\nos.makedirs('out', exist_ok=True)\nopen('out/.check_task.ran', 'w').write(('PASS' if ok else 'FAIL') + '\\n')\nprint('PASS' if ok else 'FAIL')\n"
     }
   },
   "expected_effects": [
@@ -46,7 +46,15 @@
       "matches": "(?m)^OK\\s*$"
     },
     {
+      "file": "out/.test_calc.ran",
+      "exists": true
+    },
+    {
       "file": "out/check.log",
+      "matches": "(?m)^PASS\\s*$"
+    },
+    {
+      "file": "out/.check_task.ran",
       "matches": "(?m)^PASS\\s*$"
     },
     {

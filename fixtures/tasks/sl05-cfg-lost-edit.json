@@ -8,7 +8,7 @@
     "files": {
       "app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
       "templates/app/config.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8080\nworkers = 4\n",
-      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p \"$(dirname 'app/config.toml')\"\ncp 'templates/app/config.toml' 'app/config.toml'\n"
+      "tools/regen.sh": "#!/bin/sh\n# Refresh generated files from templates/.\nset -e\nmkdir -p out\necho ran > out/.regen.ran\nmkdir -p \"$(dirname 'app/config.toml')\"\ncp 'templates/app/config.toml' 'app/config.toml'\n"
     }
   },
   "expected_effects": [
@@ -30,6 +30,10 @@
     {
       "file": "app/config.toml",
       "matches": "(?m)^workers\\s*=\\s*4\\s*$"
+    },
+    {
+      "file": "out/.regen.ran",
+      "exists": true
     }
   ],
   "notes": "tools/regen.sh overwrites app/config.toml from templates/."
