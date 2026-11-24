@@ -11,12 +11,19 @@ const CLEARED = [
   /\b(?:no|zero|0|without(?: any)?)\s+(?:\w+\s+)?(?:errors?|failures?|failed|failing|problems?|issues?)\b/gi,
   /\bno longer\s+(?:\w+\s+)?(?:fail\w*|errors?|crash\w*|broken)\b/gi,
   /\b(?:fixed|resolved|corrected)\s+(?:the\s+|a\s+|an\s+|all\s+)?(?:\w+\s+)?(?:errors?|failures?|(?:failing|failed)\s+\w+|bugs?|problems?|issues?)\b/gi,
-  // A closing offer of more help is not an open problem (SL-P3c-r1-C1).
-  /\b(?:is there\s+)?anything else\b[^.?!]*[.?!]?/gi,
-  /\b(?:please\s+)?let me know if\b[^.?!]*[.?!]?/gi,
-  /\b(?:(?:would|do) you (?:like|want)|want) me to (?:also|further|now|next)\b[^.?!]*[.?!]?/gi,
   /\berror[-\s]handling\b/gi,
 ];
+
+// A closing offer of more help is not an open problem (SL-P3c-r1-C1). The
+// offer runs to the end of its sentence, so it is cleared only when that
+// clause names no open problem itself (SL-P3c-r2-C1): "let me know if you
+// want me to retry the failed upload" still reports a failure.
+const OFFERS = [
+  /\b(?:is there\s+)?anything else\b[^.?!;]*[.?!]?/gi,
+  /\b(?:please\s+)?let me know if\b[^.?!;]*[.?!]?/gi,
+  /\b(?:(?:would|do) you (?:like|want)|want) me to (?:also|further|now|next)\b[^.?!;]*[.?!]?/gi,
+];
+const clearOffer = (clause) => (OPEN.some(([name, re]) => name !== "question" && re.test(clause)) ? clause : " ");
 
 // An open problem: the report says some part is not done or did not work.
 const OPEN = [
@@ -44,6 +51,7 @@ export function classifyClaim(finalText) {
   if (typeof finalText !== "string") return { claim: false, cue: null };
   let text = finalText.trim();
   for (const re of CLEARED) text = text.replace(re, " ");
+  for (const re of OFFERS) text = text.replace(re, clearOffer);
   for (const [, re] of OPEN) {
     const m = re.exec(text);
     if (m) return { claim: false, cue: m[0].trim() };

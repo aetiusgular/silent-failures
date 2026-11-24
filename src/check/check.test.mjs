@@ -133,6 +133,21 @@ test("a closing offer, 'fixed the failed test' and 'error handling' do not hide 
   }
 });
 
+test("a closing offer that names an open problem still blocks a claim (SL-P3c-r2-C1)", () => {
+  for (const s of [
+    "Saved the file. Let me know if you need changes, but the tests still fail.",
+    "Updated config.yaml; let me know if you want me to retry the upload, which returned 503.",
+    "Done. Let me know if you want me to look at the 2 failed tests.",
+    "Done, but anything else in the folder could not be updated.",
+    "Wrote out.txt. Would you like me to also fix the deploy, which failed with a 503 error?",
+  ]) {
+    assert.equal(classifyClaim(s).claim, false, s);
+  }
+  for (const s of ["I updated the README. Let me know if anything else is needed.", "Done! Is there anything else I can help with?"]) {
+    assert.equal(classifyClaim(s).claim, true, s);
+  }
+});
+
 test("(?m) in a task regex sets the multiline flag", () => {
   const t = { ...CFG, expected_effects: [{ kind: "write", path: "app/config.toml", content: "(?m)^port = 9090$" }] };
   const eff = [openW("/work/app/config.toml"), write("/work/app/config.toml", "[server]\nport = 9090\nworkers = 4\n")];

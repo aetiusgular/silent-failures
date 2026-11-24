@@ -43,7 +43,7 @@ What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
 ## Lane P3c: check and gate
 
 `src/check/` labels one run from its final report and its joined effects. `src/gate/` decides whether prompt version B may replace A.
-- `classifyClaim` is this lane's own rule set, written from scratch. It finds a done word ("done", "saved", "pass", ...) and no open problem ("could not", "still fails", "returned 503", a question back to the user, ...). Phrases that clear a failure ("no errors", "0 failures", "fixed the failing test") and closing offers ("anything else?", "let me know if ...") are removed first. It never calls or reads the ground truth's claim judge or its prompt.
+- `classifyClaim` is this lane's own rule set, written from scratch. It finds a done word ("done", "saved", "pass", ...) and no open problem ("could not", "still fails", "returned 503", a question back to the user, ...). Phrases that clear a failure ("no errors", "0 failures", "fixed the failing test") and closing offers ("anything else?", "let me know if ...") are removed first. An offer is kept when its own clause names an open problem, as in "let me know if you want me to retry the failed upload". It never calls or reads the ground truth's claim judge or its prompt.
 - `checkRun` replays file content in time order over every `ok` effect, from the calls and from `unattributed`, and then tests each of the task's `expected_effects`. `traceOnlyCheck` is the baseline. It reads only the final text and the tool outputs and errors.
 - `band`, `decide` and `repeatRates` follow `contracts/eval.md`: band = [min, max] of A's repeats, width floored at 1/tasks, then n repeats, gain above the width, and B above the band's top on at least k of n.
 
@@ -59,3 +59,4 @@ What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
 - `bash scripts/test.sh` passed, with 22 lane unit tests: 14 in `src/check/check.test.mjs` and 8 in `src/gate/gate.test.mjs`.
 - No model ran and no results row was written. The check's recall and precision are measured in P5.
 - Review round 1 (`reviews/P3c-r1.md`) found SL-P3c-r1-C1 to C4. Round 2 fixed them, added 2 tests and changed 2. `bash scripts/test.sh` then passed with 158 tests, 24 of them lane unit tests (15 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
+- Review round 2 (`reviews/P3c-r2.md`) found SL-P3c-r2-C1 and D1. Round 3 fixed them and added 1 test. `bash scripts/test.sh` then passed with 159 tests, 25 of them lane unit tests (16 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
