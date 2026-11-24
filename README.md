@@ -39,3 +39,24 @@ What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
 - `bash scripts/forge-gate.sh P3b` passed. The 15 P3a and 8 P3b red tests are green, and the 24 P3c tests still fail for their stated reason.
 - `bash scripts/test.sh` passed, with 18 lane unit tests in `src/spans/spans.test.mjs` (16 in round 1, plus 2 from review round 1).
 - No model ran and no results row was written. Nothing was sent to the target's ingest API, which needs a key.
+
+## Lane P3c: check and gate
+
+`src/check/` labels one run from its final report and its joined effects. `src/gate/` decides whether prompt version B may replace A.
+- `classifyClaim` is this lane's own rule set, written from scratch. It finds a done word ("done", "saved", "pass", ...) and no open problem ("could not", "still fails", "returned 503", a question back to the user, ...). Phrases that clear a failure ("no errors", "0 failures", "fixed the failing test") and closing offers ("anything else?", "let me know if ...") are removed first. An offer is kept when its own clause names an open problem, as in "let me know if you want me to retry the failed upload". It never calls or reads the ground truth's claim judge or its prompt.
+- `checkRun` replays file content in time order over every `ok` effect, from the calls and from `unattributed`, and then tests each of the task's `expected_effects`. `traceOnlyCheck` is the baseline. It reads only the final text and the tool outputs and errors.
+- `band`, `decide` and `repeatRates` follow `contracts/eval.md`: band = [min, max] of A's repeats, width floored at 1/tasks, then n repeats, gain above the width, and B above the band's top on at least k of n.
+
+Beyond the red tests, the lane does the following:
+- Replay starts from the task's `setup.files`, so an append to a setup file is tested against the whole file.
+- Content the trace cannot see is never called contradicted. That covers a write with no bytes (`copy_file_range`, `sendfile`), a write strace cut at 4096 bytes, and a file the run did not create and the setup does not list. Such a write still counts as a write.
+- A folder rename moves the files under it, and each counts as renamed onto its new path, as a file rename does.
+- The gate compares with a 1e-9 margin, so a gain equal to the band width, or a repeat equal to the band's top, never passes on float noise.
+- Bad input throws instead of deciding: a relative `workDir`, an unknown expected-effect kind, k > n, a rate outside [0, 1], or a task twice in one repeat. Zero repeats of A or B is not bad input: `decide` refuses with "need n repeats".
+
+What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
+- `bash scripts/forge-gate.sh P3c` passed. All 47 red tests are green: 15 P3a, 8 P3b and 24 P3c.
+- `bash scripts/test.sh` passed, with 22 lane unit tests: 14 in `src/check/check.test.mjs` and 8 in `src/gate/gate.test.mjs`.
+- No model ran and no results row was written. The check's recall and precision are measured in P5.
+- Review round 1 (`reviews/P3c-r1.md`) found SL-P3c-r1-C1 to C4. Round 2 fixed them, added 2 tests and changed 2. `bash scripts/test.sh` then passed with 158 tests, 24 of them lane unit tests (15 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
+- Review round 2 (`reviews/P3c-r2.md`) found SL-P3c-r2-C1 and D1. Round 3 fixed them and added 1 test. `bash scripts/test.sh` then passed with 159 tests, 25 of them lane unit tests (16 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
