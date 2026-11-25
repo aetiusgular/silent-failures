@@ -1,0 +1,4 @@
+{
+  "$comment": "What the next box dispatch runs (harness/main.mjs). P5 round 1: preflight, then E0 on dev and Tony's audit packet. Later rounds add e1 (twice), band, and heldout once results/audit/tony.jsonl passes the kappa gate.",
+  "stages": ["preflight", "e0", "audit-pack"]
+}

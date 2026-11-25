@@ -2,8 +2,8 @@
   "project": "silent-failures",
   "code": "SL",
   "target": "Lemma",
-  "phase": "P4",
-  "round": 1,
+  "phase": "P5",
+  "round": 3,
   "phases": [
     "P1",
     "P2",
@@ -34,7 +34,8 @@
     "P3a": 1,
     "P3b": 1,
     "P3c": 1,
-    "P4": 1
+    "P4": 1,
+    "P5": 1
   },
   "needs_box": [
     "P5"

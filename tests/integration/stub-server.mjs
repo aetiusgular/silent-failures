@@ -5,9 +5,14 @@
 import { createServer } from "node:http";
 import { appendFileSync, writeFileSync } from "node:fs";
 
-/** Start one server per stub. Returns { addrs, urls, logPath, close }. */
+/**
+ * Start one server per stub. Returns { addrs, urls, logPath, entries, close }.
+ * `entries()` is the server's own in-memory copy of the log: a caller that
+ * must not trust the file (the agent can write it) rewrites it from this.
+ */
 export async function startStubs(stubs, logPath) {
   writeFileSync(logPath, "");
+  const log = [];
   const servers = [];
   const addrs = {};
   const urls = {};
@@ -29,7 +34,9 @@ export async function startStubs(stubs, logPath) {
           status = r.status;
           body = r.body ?? "";
         }
-        appendFileSync(logPath, JSON.stringify({ ts: Date.now() / 1000, stub: stub.name, method: req.method, path, status, body: Buffer.concat(chunks).toString("utf8") }) + "\n");
+        const entry = { ts: Date.now() / 1000, stub: stub.name, method: req.method, path, status, body: Buffer.concat(chunks).toString("utf8") };
+        log.push(entry);
+        appendFileSync(logPath, JSON.stringify(entry) + "\n");
         res.writeHead(status, { "content-type": "text/plain" });
         res.end(body);
       });
@@ -41,5 +48,6 @@ export async function startStubs(stubs, logPath) {
     servers.push(server);
   }
   const close = () => Promise.all(servers.map((s) => new Promise((r) => s.close(r))));
-  return { addrs, urls, logPath, close };
+  const entries = () => log.map((e) => ({ ...e }));
+  return { addrs, urls, logPath, entries, close };
 }

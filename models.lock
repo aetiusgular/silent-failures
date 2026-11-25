@@ -1,12 +1,13 @@
 {
-  "$comment": "Pinned in P2 (BUILD_OUTLINE.md section 6, item 4). Revisions read from the Hugging Face API on 2026-11-24. P5 checks the box serves these exact files and records the revision, quant and runtime in every results row; a mismatch stops the run.",
+  "$comment": "Pinned in P2 (BUILD_OUTLINE.md section 6, item 4). Revisions read from the Hugging Face API on 2026-11-24. P5 checks the box serves these exact files and records the revision, quant and runtime in every results row; a mismatch stops the run. served_as (added in P5) is the model id the box's llama-swap must serve the file under; SL_AGENT_MODEL_ID and SL_JUDGE_MODEL_ID override it.",
   "agent_model": {
     "repo": "unsloth/Qwen3.8-27B-GGUF",
     "revision": "4af51b3542f775b0a8e4b310bfb3f17e01c306c9",
     "file": "Qwen3.8-27B-UD-Q4_K_M.gguf",
     "family": "Qwen",
     "licence": "apache-2.0",
-    "why": "the file derm's 300-run benchmark served on the box (derm docs/benchmarks.md at aebf80f)"
+    "why": "the file derm's 300-run benchmark served on the box (derm docs/benchmarks.md at aebf80f)",
+    "served_as": "qwen27b-q4"
   },
   "claim_judge": {
     "repo": "unsloth/gemma-4-31B-it-GGUF",
@@ -15,11 +16,22 @@
     "family": "Gemma",
     "licence": "apache-2.0",
     "why": "a different model family from the agent model (section 6, item 5); ground truth only",
-    "sampling": { "temperature": 0, "seed": 0, "max_tokens": 8 }
+    "sampling": {
+      "temperature": 0,
+      "seed": 0,
+      "max_tokens": 8
+    },
+    "served_as": "gemma4-31b-q4"
   },
   "runtime": {
     "server": "llama.cpp behind llama-swap on the box",
     "pin": "read at run time; derm's benchmark used llama.cpp f5027fb21 and llama-swap 1027b9b"
   },
-  "agent_seeds": [1, 2, 3, 4, 5]
+  "agent_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
 }

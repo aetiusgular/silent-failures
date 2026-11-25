@@ -77,3 +77,19 @@ What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1, strace 
 - `bash scripts/test.sh` passed: 184 tests, 25 of them in `tests/integration/`.
 - `bash scripts/forge-gate.sh P4` passed. All 47 red tests are green, and the split hash matches.
 - No model ran and no results row was written.
+
+## P5: eval harness
+
+`scripts/eval.sh` runs `harness/main.mjs` on the box, inside forge's `srt` profile. `harness/stages.json` picks the stages for the next dispatch. Stage rules come from `contracts/eval.md`.
+
+- **preflight** checks strace and `--kill-on-exit`, the two agent CLIs, the pinned weight files under `/data/models`, and that the model server serves each file in `models.lock` under its `served_as` id (llama-swap's `/upstream/<id>/props`). A failure writes a `results/preflight.jsonl` row and the summary, and stops before any run.
+- **Per run** (`harness/run-one.mjs`):
+  - It sets up a fresh work folder and the task's stubs, and runs the agent as strace's root, with stdout opened inside the traced command. The recorded writes to that file give each tool call its time window.
+  - The check and the trace-only baseline then run on the joined effects, and the oracle runs on the end state and the stub log.
+  - The claim judge runs in one batch per stage, so the 3090 swaps models once per stage and not once per run.
+- **Agents:** pi and Claude Code, each against the local model through a loopback pass-through (`harness/model-proxy.mjs`). For Claude Code, the pass-through folds `role: system` messages into the top-level `system` field. derm found that llama.cpp needs this.
+- **Outputs:** E0 goes to `results/e0-dev.jsonl` and is never overwritten. Tony's blind packet goes to `results/audit/packet.jsonl`. Heldout is refused until `results/audit/tony.jsonl` gives kappa >= 0.80, and refused again once `results/heldout.jsonl` exists.
+- **A stage cut short** (the time limit, or runs the judge never answered) is written to `results/<name>.partial.jsonl`, never to its final file, and eval.sh exits 1. Each box dispatch is a fresh checkout, so commit the uploaded partial file (and its `results/runs/<stage>/` artifacts) to the PR. The next dispatch reuses those runs and judges any the judge missed, but only runs made by the same code (`code_hash` over `harness/`, `src/`, `oracle/`, `fixtures/`, the judge prompt, the split and `models.lock`), the same agent CLI version and the same model runtime. Any other partial run is made again, and the summary says how many. E1 runs are labeled `e1r<n>`, so two runs at one commit keep distinct run ids.
+
+**What ran (P5 round 1):** only the preflight, on the box (`panda`), through `sandbox/run-eval.sh srt`, at `f40ae1a`. It failed because no model server answers on 127.0.0.1:8080 and the claim judge's weights are not on disk (`results/preflight.jsonl`). No agent run has happened yet, so there are no numbers. The harness itself is tested end to end in `tests/unit/harness.test.mjs`: a scripted agent works on real dev tasks under a real strace, against a loopback judge stub.
+
