@@ -336,6 +336,26 @@ test("main: runs the judge never answered stay partial, and the next dispatch re
   assert.match(readFileSync(join(dir, "results/summary.md"), "utf8"), /1 resumed/);
 });
 
+test("main: a partial run made by other code or another agent version is run again, not resumed", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
+  writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.lazy));
+  assert.equal(await mainIn(dir, { SL_JUDGE_URL: "http://127.0.0.1:9" }), 1);
+  const partial = join(dir, "results/e0-dev.partial.jsonl");
+  const [first] = rowsOf(partial);
+  assert.match(first.code_hash, /^[0-9a-f]{64}$/, "every row records the code it ran");
+  for (const [field, value] of [["code_hash", "0".repeat(64)], ["agent_version", "scripted 0.0.1"]]) {
+    // The partial file, as committed, came from a different harness/src or agent CLI.
+    writeFileSync(partial, JSON.stringify({ ...first, [field]: value }) + "\n");
+    assert.equal(await mainIn(dir, { SL_JUDGE_URL: "http://127.0.0.1:9", FORGE_SHA: "4".repeat(40) }), 1);
+    const rows = rowsOf(partial);
+    assert.equal(rows.length, 1);
+    assert.notEqual(rows[0].run_id, first.run_id, `${field}: the run is made again at this commit`);
+    assert.equal(rows[0][field], first[field]);
+    assert.match(readFileSync(join(dir, "results/summary.md"), "utf8"), /1 partial run\(s\) not resumed/);
+    assert.doesNotMatch(readFileSync(join(dir, "results/summary.md"), "utf8"), /resumed\)/);
+  }
+});
+
 test("main: heldout is refused once results/heldout.jsonl exists", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
   const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
   writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.honest));

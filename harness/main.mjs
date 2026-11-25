@@ -15,8 +15,9 @@
 //               -> results/heldout.jsonl
 // results/summary.md is rewritten at the end of every invocation from every
 // results file present.
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -57,6 +58,27 @@ function machine() {
     kernel: sh("uname", ["-r"]),
     read_at: new Date().toISOString(),
   };
+}
+
+// What the runs depend on, hashed from disk: the harness, the system under
+// test, the oracle, the task fixtures, the judge's prompt, the split and the
+// model pins. Tests and the stage list are left out. A resumed row is kept
+// only when this matches (SL-P5-r2-E1): a partial stage must not mix rows from
+// different code, which would let tuning leak into E0.
+const CODE_PATHS = ["harness", "src", "oracle", "fixtures", "contracts/claim-judge.md", "contracts/split.json", "models.lock"];
+function codeHash() {
+  const files = [];
+  const walk = (rel) => {
+    const abs = R(rel);
+    if (!existsSync(abs)) return;
+    if (statSync(abs).isDirectory()) {
+      for (const n of readdirSync(abs).sort()) walk(`${rel}/${n}`);
+    } else if (!/\.test\.mjs$/.test(rel) && rel !== "harness/stages.json") files.push(rel);
+  };
+  for (const p of CODE_PATHS) walk(p);
+  const h = createHash("sha256");
+  for (const f of files.sort()) h.update(f + "\0").update(readFileSync(R(f))).update("\0");
+  return h.digest("hex");
 }
 
 const quantOf = (file) => (/(UD-)?(I?Q\d[A-Z0-9_]*|BF16|F16)(?=\.gguf$|-\d{5}-of-)/i.exec(file) ?? [])[0] ?? null;
@@ -174,9 +196,17 @@ async function runStage(cfg, ctx, { stage, label = stage, split, version, out, p
   const adir = join(cfg.results, "runs", label);
   mkdirSync(adir, { recursive: true });
   const prior = new Map();
+  let discarded = 0;
+  // A partial row is resumed only when it was made by the same code, agent
+  // CLI version and model runtime as this dispatch. Anything else is run
+  // again, so a stage never mixes versions.
+  const same = (r) =>
+    r.code_hash === ctx.rowBase.code_hash && r.agent_version === (ctx.agentVersions?.[r.agent] ?? null) && r.runtime === ctx.rowBase.runtime && r.model_revision === ctx.rowBase.model_revision;
   for (const r of readRows(partial)) {
     const a = join(adir, `${r.run_id}.json`);
-    if (r.stage === stage && r.split === split && existsSync(a)) prior.set(planKey(r), { row: r, artifact: readJson(a) });
+    if (r.stage !== stage || r.split !== split || !existsSync(a)) continue;
+    if (same(r)) prior.set(planKey(r), { row: r, artifact: readJson(a) });
+    else discarded++;
   }
   const done = [];
   let stopped = false;
@@ -218,12 +248,12 @@ async function runStage(cfg, ctx, { stage, label = stage, split, version, out, p
   const dest = complete ? out : partial;
   writeRows(dest, rows);
   if (complete && existsSync(partial)) rmSync(partial);
-  return { rows, complete, resumed, unjudged, stopped, dest };
+  return { rows, complete, resumed, discarded, unjudged, stopped, dest };
 }
 
 const stageNote = (name, r) => {
   const why = [r.stopped && "stopped at the time limit", r.unjudged && `${r.unjudged} run(s) the judge never answered`].filter(Boolean).join("; ");
-  return `${name}: ${r.rows.length} runs${r.resumed ? ` (${r.resumed} resumed)` : ""} into ${r.dest.split("/").pop()}${r.complete ? "" : ` (**incomplete: ${why}**; commit it and re-dispatch to resume)`}.`;
+  return `${name}: ${r.rows.length} runs${r.resumed ? ` (${r.resumed} resumed)` : ""}${r.discarded ? ` (${r.discarded} partial run(s) not resumed: the code, agent version or model runtime changed)` : ""} into ${r.dest.split("/").pop()}${r.complete ? "" : ` (**incomplete: ${why}**; commit it and re-dispatch to resume)`}.`;
 };
 
 function nextE1(cfg) {
@@ -349,6 +379,7 @@ export async function main() {
   const pf = await preflight(cfg);
   const rowBase = {
     git_sha: cfg.sha,
+    code_hash: codeHash(),
     machine: machine(),
     model_revision: cfg.agents.includes("scripted") ? null : cfg.lock.agent_model.revision,
     quant: cfg.agents.includes("scripted") ? null : quantOf(cfg.lock.agent_model.file),
