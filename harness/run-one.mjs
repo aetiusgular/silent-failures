@@ -92,6 +92,10 @@ export async function runOne({ task, split, agent, version, repeat, stage, runId
     runError = e.message;
   } finally {
     await stubs.close();
+    // The stub log is ground truth, and the agent can write its folder
+    // (SECURITY.md T-7). Rewrite it from the stub servers' own memory before
+    // the oracle reads it, so nothing the agent wrote there survives.
+    writeFileSync(stubLog, stubs.entries().map((e) => JSON.stringify(e) + "\n").join(""));
   }
   const duration_ms = Date.now() - started;
   const timedOut = rec ? rec.exit.signal === "SIGKILL" : false;

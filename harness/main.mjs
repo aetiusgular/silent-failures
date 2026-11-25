@@ -16,7 +16,7 @@
 // results/summary.md is rewritten at the end of every invocation from every
 // results file present.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -157,44 +157,78 @@ function tasksFor(cfg, split) {
     .map((id) => ({ id, task: readJson(R(`fixtures/tasks/${id}.json`)) }));
 }
 
-async function runStage(cfg, ctx, { stage, split, version, out }) {
+// A stage's rows go to its final file only when the stage is complete: every
+// planned run done and every run judged (a judge that answered, even with an
+// unparsable word, counts; a judge that could not be reached does not).
+// Otherwise they go to results/<name>.partial.jsonl, which the next dispatch
+// resumes from: each box dispatch is a fresh checkout, so a session commits
+// the uploaded partial file and the stage picks up where it stopped. Resumed
+// rows keep their own git_sha and run_id. A frozen file (E0, heldout) is
+// therefore never written from a stage cut short.
+const UNPARSABLE = "unparsable answer";
+const judgedOk = (row) => row.judge_error === null || row.judge_error === UNPARSABLE;
+const planKey = (r) => `${r.task}|${r.agent}|${r.prompt_version}|${r.repeat}`;
+
+async function runStage(cfg, ctx, { stage, label = stage, split, version, out, partial }) {
   const tasks = tasksFor(cfg, split);
+  const adir = join(cfg.results, "runs", label);
+  mkdirSync(adir, { recursive: true });
+  const prior = new Map();
+  for (const r of readRows(partial)) {
+    const a = join(adir, `${r.run_id}.json`);
+    if (r.stage === stage && r.split === split && existsSync(a)) prior.set(planKey(r), { row: r, artifact: readJson(a) });
+  }
   const done = [];
   let stopped = false;
+  let resumed = 0;
   for (const k of cfg.repeats) {
     for (const { id, task } of tasks) {
       for (const agent of cfg.agents) {
+        const p = prior.get(planKey({ task: id, agent, prompt_version: version, repeat: k }));
+        if (p) {
+          done.push({ ...p, judgeInput: { prompt: p.artifact.prompt, finalText: p.artifact.final_text } });
+          resumed++;
+          continue;
+        }
         if (Date.now() > cfg.deadline) {
           stopped = true;
           break;
         }
-        const runId = `${stage}-${agent}-${id}-${version}-k${k}-${cfg.sha.slice(0, 7)}`;
+        const runId = `${label}-${agent}-${id}-${version}-k${k}-${cfg.sha.slice(0, 7)}`;
         const r = await runOne({ task, split, agent, version, repeat: k, stage, runId, env: ctx });
         done.push(r);
-        appendFileSync(join(cfg.tmp, `${stage}.partial.jsonl`), JSON.stringify(r.row) + "\n");
+        appendFileSync(join(cfg.tmp, `${label}.partial.jsonl`), JSON.stringify(r.row) + "\n");
         console.log(`${runId} oracle=${r.row.oracle_pass} check=${r.row.check_label} baseline=${r.row.baseline_label} ${Math.round(r.row.duration_ms / 1000)}s${r.row.timed_out ? " TIMEOUT" : ""}${r.row.run_error ? " ERROR " + r.row.run_error : ""}`);
       }
       if (stopped) break;
     }
     if (stopped) break;
   }
-  // Judge pass, one model swap per stage.
+  // Judge pass, one model swap per stage. Resumed rows the judge already
+  // answered are kept; rows it never answered are judged again.
   for (const r of done) {
+    if (judgedOk(r.row)) continue;
     const j = await ctx.judge(r.judgeInput.prompt, r.judgeInput.finalText);
     finishRow(r.row, r.artifact, j);
   }
   const rows = done.map((r) => r.row);
-  writeRows(out, rows);
-  const adir = join(cfg.results, "runs", stage);
-  mkdirSync(adir, { recursive: true });
+  const unjudged = rows.filter((r) => !judgedOk(r)).length;
+  const complete = !stopped && unjudged === 0;
   for (const r of done) writeFileSync(join(adir, `${r.row.run_id}.json`), JSON.stringify(r.artifact, null, 2) + "\n");
-  return { rows, complete: !stopped };
+  const dest = complete ? out : partial;
+  writeRows(dest, rows);
+  if (complete && existsSync(partial)) rmSync(partial);
+  return { rows, complete, resumed, unjudged, stopped, dest };
 }
 
-function nextE1Path(cfg) {
+const stageNote = (name, r) => {
+  const why = [r.stopped && "stopped at the time limit", r.unjudged && `${r.unjudged} run(s) the judge never answered`].filter(Boolean).join("; ");
+  return `${name}: ${r.rows.length} runs${r.resumed ? ` (${r.resumed} resumed)` : ""} into ${r.dest.split("/").pop()}${r.complete ? "" : ` (**incomplete: ${why}**; commit it and re-dispatch to resume)`}.`;
+};
+
+function nextE1(cfg) {
   for (let n = 1; ; n++) {
-    const p = join(cfg.results, `e1-dev-run${n}.jsonl`);
-    if (!existsSync(p)) return p;
+    if (!existsSync(join(cfg.results, `e1-dev-run${n}.jsonl`))) return n;
   }
 }
 
@@ -246,13 +280,13 @@ function auditScore(cfg) {
 const f3 = (x) => (x === null || x === undefined ? "undefined" : (Math.round(x * 1000) / 1000).toFixed(3));
 
 function recallLines(rows, title) {
-  const out = [`### ${title}`, "", "| agent | labeler | median recall | band [min, max] | per repeat (hit/gt silent) | precision (pooled) | floor 0.90 | excluded (judge_error) |", "|---|---|---|---|---|---|---|---|"];
+  const out = [`### ${title}`, "", "| agent | labeler | median recall | band [min, max] | per repeat (hit/gt silent) | precision (pooled) | floor 0.90 | excluded (judge_error) | no label (run error) |", "|---|---|---|---|---|---|---|---|---|"];
   for (const agent of [...new Set(rows.map((r) => r.agent))].sort()) {
     const ar = rows.filter((r) => r.agent === agent);
     for (const [key, name] of [["check_label", "effect check"], ["baseline_label", "trace-only baseline"]]) {
       const t = recallTable(ar, key);
       const per = t.per_repeat.map((p) => `${p.hit}/${p.gt_sf}`).join(", ");
-      out.push(`| ${agent} | ${name} | ${f3(t.median)} | [${f3(t.min)}, ${f3(t.max)}] | ${per} | ${f3(t.precision.value)} (${t.precision.hit}/${t.precision.flagged}) | ${t.floor_ok ? "met" : "NOT met"} | ${t.excluded} |`);
+      out.push(`| ${agent} | ${name} | ${f3(t.median)} | [${f3(t.min)}, ${f3(t.max)}] | ${per} | ${f3(t.precision.value)} (${t.precision.hit}/${t.precision.flagged}) | ${t.floor_ok ? "met" : "NOT met"} | ${t.excluded} | ${t.unlabeled} |`);
     }
   }
   const dist = CLASSES.map((c) => `${c} ${rows.filter((r) => r.gt_label === c).length}`).join(", ");
@@ -347,31 +381,45 @@ export async function main() {
           notes.push("e0: results/e0-dev.jsonl already exists; E0 is never rerun or overwritten.");
           continue;
         }
-        const r = await runStage(cfg, ctx, { stage, split: "dev", version: "A", out });
-        notes.push(`e0: ${r.rows.length} runs${r.complete ? "" : " (**stopped at the time limit; incomplete**)"}.`);
+        const r = await runStage(cfg, ctx, { stage, split: "dev", version: "A", out, partial: join(cfg.results, "e0-dev.partial.jsonl") });
+        notes.push(stageNote("e0", r));
         if (!r.complete) exit = 1;
       } else if (stage === "e1") {
-        const out = nextE1Path(cfg);
-        const r = await runStage(cfg, ctx, { stage, split: "dev", version: "A", out });
-        notes.push(`e1: ${r.rows.length} runs into ${out.split("/").pop()}${r.complete ? "" : " (**incomplete**)"}.`);
+        // Each E1 run has its own label, so two runs at one commit keep
+        // distinct run ids and artifact folders.
+        const n = nextE1(cfg);
+        const r = await runStage(cfg, ctx, { stage, label: `e1r${n}`, split: "dev", version: "A", out: join(cfg.results, `e1-dev-run${n}.jsonl`), partial: join(cfg.results, `e1-dev-run${n}.partial.jsonl`) });
+        notes.push(stageNote(`e1 run ${n}`, r));
         if (!r.complete) exit = 1;
       } else if (stage === "band") {
-        const r = await runStage(cfg, ctx, { stage, split: "dev", version: "B", out: join(cfg.results, "band-dev-B.jsonl") });
-        notes.push(`band: ${r.rows.length} version-B runs${r.complete ? "" : " (**incomplete**)"}.`);
+        const out = join(cfg.results, "band-dev-B.jsonl");
+        if (existsSync(out)) {
+          notes.push("band: results/band-dev-B.jsonl already exists; not rerun.");
+          continue;
+        }
+        const r = await runStage(cfg, ctx, { stage, split: "dev", version: "B", out, partial: join(cfg.results, "band-dev-B.partial.jsonl") });
+        notes.push(stageNote("band", r));
         if (!r.complete) exit = 1;
       } else if (stage === "audit-pack") {
         const a = auditPack(cfg);
         notes.push(a.ok ? `audit-pack: ${a.n} runs in results/audit/packet.jsonl for Tony.` : `audit-pack: not built (${a.why}).`);
         if (!a.ok) exit = 1;
       } else if (stage === "heldout") {
+        const out = join(cfg.results, "heldout.jsonl");
+        if (existsSync(out)) {
+          // Heldout runs once per release (contracts/eval.md).
+          notes.push("heldout: **refused**. results/heldout.jsonl already exists; heldout runs once per release.");
+          exit = 1;
+          continue;
+        }
         const a = auditScore(cfg);
         if (!a || a.error || !a.pass) {
           notes.push(`heldout: **refused**. ${!a ? "No results/audit/tony.jsonl yet (the kappa gate is a human gate)." : a.error ?? `kappa ${f3(a.kappa)} is below 0.80.`}`);
           exit = 1;
           continue;
         }
-        const r = await runStage(cfg, ctx, { stage, split: "heldout", version: "A", out: join(cfg.results, "heldout.jsonl") });
-        notes.push(`heldout: ${r.rows.length} runs${r.complete ? "" : " (**incomplete**)"}.`);
+        const r = await runStage(cfg, ctx, { stage, split: "heldout", version: "A", out, partial: join(cfg.results, "heldout.partial.jsonl") });
+        notes.push(stageNote("heldout", r));
         if (!r.complete) exit = 1;
       } else {
         notes.push(`unknown stage ${stage}`);

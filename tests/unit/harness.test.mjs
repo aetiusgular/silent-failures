@@ -270,3 +270,104 @@ test("main: E0 is never overwritten, and heldout is refused without Tony's audit
   assert.match(s, /never rerun or overwritten/);
   assert.match(s, /heldout: \*\*refused\*\*/);
 });
+
+test("recallTable: a run with no check label (the recording failed) is a miss, not excluded", () => {
+  const rows = [
+    row({ repeat: 1, gt_label: "silent_failure", check_label: "silent_failure", baseline_label: "silent_failure" }),
+    row({ repeat: 1, gt_label: "silent_failure", check_label: null, baseline_label: null, run_error: "spawn failed" }),
+  ];
+  const t = recallTable(rows, "check_label", [1]);
+  assert.equal(t.per_repeat[0].gt_sf, 2);
+  assert.equal(t.per_repeat[0].recall, 0.5);
+  assert.equal(t.excluded, 0);
+  assert.equal(t.unlabeled, 1);
+});
+
+// main() in an existing results folder, with extra env. Returns the exit code.
+async function mainIn(dir, extra) {
+  const saved = { ...process.env };
+  Object.assign(process.env, { SL_AGENTS: "scripted", SL_SCRIPT_PLAN: join(dir, "plan.json"), SL_TASKS: "sl06-changelog-wrong-path", SL_REPEATS: "1", SL_STAGES: "preflight,e0", SL_TMP: join(dir, "tmp"), SL_RESULTS: join(dir, "results"), FORGE_SHA: "2".repeat(40) }, extra);
+  delete process.env.FORGE_MACHINE_FILE;
+  try {
+    const { main } = await import("../../harness/main.mjs");
+    return await main();
+  } finally {
+    process.env = saved;
+  }
+}
+const rowsOf = (p) => readFileSync(p, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+
+test("main: an E0 cut by the time limit goes to a partial file, never to e0-dev.jsonl", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
+  writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.honest));
+  const judge = await judgeStub();
+  try {
+    assert.equal(await mainIn(dir, { SL_MAX_MINUTES: "0", SL_JUDGE_URL: judge.url }), 1);
+    assert.equal(existsSync(join(dir, "results/e0-dev.jsonl")), false);
+    assert.ok(existsSync(join(dir, "results/e0-dev.partial.jsonl")));
+    assert.match(readFileSync(join(dir, "results/summary.md"), "utf8"), /incomplete: stopped at the time limit/);
+    // The next dispatch is not blocked by the cut one: it runs E0 in full.
+    assert.equal(await mainIn(dir, { SL_JUDGE_URL: judge.url }), 0);
+    assert.equal(rowsOf(join(dir, "results/e0-dev.jsonl")).length, 1);
+    assert.equal(existsSync(join(dir, "results/e0-dev.partial.jsonl")), false);
+  } finally {
+    await judge.close();
+  }
+});
+
+test("main: runs the judge never answered stay partial, and the next dispatch resumes and judges them", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
+  writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.lazy));
+  assert.equal(await mainIn(dir, { SL_JUDGE_URL: "http://127.0.0.1:9" }), 1);
+  assert.equal(existsSync(join(dir, "results/e0-dev.jsonl")), false);
+  const [first] = rowsOf(join(dir, "results/e0-dev.partial.jsonl"));
+  assert.equal(first.gt_label, null);
+  assert.notEqual(first.judge_error, null);
+  const judge = await judgeStub();
+  try {
+    // A later commit (the partial file committed) resumes the same run.
+    assert.equal(await mainIn(dir, { SL_JUDGE_URL: judge.url, FORGE_SHA: "3".repeat(40) }), 0);
+  } finally {
+    await judge.close();
+  }
+  const [r] = rowsOf(join(dir, "results/e0-dev.jsonl"));
+  assert.equal(r.run_id, first.run_id, "the agent run is reused, not rerun");
+  assert.equal(r.gt_label, "silent_failure");
+  assert.match(readFileSync(join(dir, "results/summary.md"), "utf8"), /1 resumed/);
+});
+
+test("main: heldout is refused once results/heldout.jsonl exists", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
+  writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.honest));
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(join(dir, "results"), { recursive: true });
+  writeFileSync(join(dir, "results/heldout.jsonl"), "");
+  assert.equal(await mainIn(dir, { SL_STAGES: "heldout", SL_JUDGE_URL: "http://127.0.0.1:9" }), 1);
+  assert.match(readFileSync(join(dir, "results/summary.md"), "utf8"), /heldout runs once per release/);
+});
+
+test("main: what the agent writes into the stub log does not reach the oracle or the audit", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const forged = JSON.stringify({ ts: 1, stub: "forged", method: "GET", path: "/rates.json", status: 200, body: "" });
+  const plan = { steps: [{ cmd: `echo '${forged}' >> ../stub.jsonl` }, ...PLANS.fetch_lazy.steps], final: PLANS.fetch_lazy.final };
+  const { rows, dir } = await runMain(plan, "sl39-fetch-stub-error");
+  const a = JSON.parse(readFileSync(join(dir, "results/runs/e0", `${rows[0].run_id}.json`), "utf8"));
+  assert.ok(a.stub_log.length >= 1, "the real request is logged");
+  assert.ok(a.stub_log.every((e) => e.stub !== "forged"), "the forged line is gone");
+  assert.equal(rows[0].oracle_pass, false);
+});
+
+test("main: two E1 runs at one commit keep distinct run ids", { skip: !hasStrace && "no strace/ptrace here" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sl-main-"));
+  writeFileSync(join(dir, "plan.json"), JSON.stringify(PLANS.honest));
+  const judge = await judgeStub();
+  try {
+    assert.equal(await mainIn(dir, { SL_STAGES: "e1,e1", SL_JUDGE_URL: judge.url }), 0);
+  } finally {
+    await judge.close();
+  }
+  const a = rowsOf(join(dir, "results/e1-dev-run1.jsonl"));
+  const b = rowsOf(join(dir, "results/e1-dev-run2.jsonl"));
+  assert.notEqual(a[0].run_id, b[0].run_id);
+  assert.ok(existsSync(join(dir, "results/runs/e1r1", `${a[0].run_id}.json`)));
+  assert.ok(existsSync(join(dir, "results/runs/e1r2", `${b[0].run_id}.json`)));
+});

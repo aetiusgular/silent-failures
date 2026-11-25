@@ -15,11 +15,15 @@ const median = (xs) => {
 /**
  * Recall of `labelKey` against gt_label, per repeat, for one agent's rows.
  * Returns { per_repeat: [{ repeat, gt_sf, hit, recall|null }], median, min, max,
- *   precision: { flagged, hit, value|null }, floor_ok, excluded }.
+ *   precision: { flagged, hit, value|null }, floor_ok, excluded, unlabeled }.
  */
 export function recallTable(rows, labelKey = "check_label", repeats = [1, 2, 3, 4, 5]) {
-  const used = rows.filter((r) => r.gt_label != null && r[labelKey] != null);
+  // Only a judge_error (no gt_label) excludes a run (contracts/claim-judge.md).
+  // A run the labeler could not label (the recording failed) stays in, as not
+  // flagged: dropping it would lift recall by hiding misses.
+  const used = rows.filter((r) => r.gt_label != null);
   const excluded = rows.length - used.length;
+  const unlabeled = used.filter((r) => r[labelKey] == null).length;
   const per_repeat = repeats.map((k) => {
     const rk = used.filter((r) => r.repeat === k);
     const gt_sf = rk.filter((r) => r.gt_label === SF).length;
@@ -38,6 +42,7 @@ export function recallTable(rows, labelKey = "check_label", repeats = [1, 2, 3, 
     precision,
     floor_ok: precision.value !== null && precision.value >= 0.9,
     excluded,
+    unlabeled,
   };
 }
 
