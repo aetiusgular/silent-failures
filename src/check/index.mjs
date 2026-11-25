@@ -139,6 +139,21 @@ function replay(effects, workDir, setupFiles) {
         if (e.path) files.set(e.path, { exists: false, content: "", known: true });
         break;
       }
+      case "truncate": {
+        // Sets the length; it is not a write (P4, request from #7). Content
+        // past what the trace saw stays unknown, except a cut to zero.
+        if (!e.path) break;
+        const f = get(e.path);
+        const size = e.size;
+        if (size === 0) files.set(e.path, { exists: true, content: "", known: true });
+        else if (!Number.isInteger(size) || size < 0 || !f.known || !f.exists) files.set(e.path, { exists: true, content: f.content, known: false });
+        else {
+          const buf = Buffer.from(f.content, "utf8");
+          const content = size <= buf.length ? buf.subarray(0, size).toString("utf8") : f.content + "\0".repeat(size - buf.length);
+          files.set(e.path, { exists: true, content, known: true });
+        }
+        break;
+      }
       default:
         break;
     }
