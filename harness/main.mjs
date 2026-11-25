@@ -116,6 +116,14 @@ async function preflight(cfg) {
     versions[a] = v ? v.split("\n")[0] : null;
     add(`agent ${a} (${bin})`, !!v, v ? versions[a] : `${bin} --version failed or not on PATH`);
   }
+  // The weight files on disk, by name (the model server may be down).
+  const modelDir = env.SL_MODEL_DIR ?? "/data/models";
+  if (!cfg.agents.includes("scripted")) {
+    for (const [role, m] of [["agent model", cfg.lock.agent_model], ["claim judge", cfg.lock.claim_judge]]) {
+      const hit = existsSync(modelDir) ? sh("find", [modelDir, "-name", m.file, "-type", "f"]) : null;
+      add(`${role} file ${m.file} under ${modelDir}`, !!hit, hit ? hit.split("\n")[0] : existsSync(modelDir) ? `not found (${m.repo} at ${m.revision.slice(0, 12)} is not downloaded)` : `${modelDir} does not exist or is not readable`);
+    }
+  }
   let runtime = null;
   if (cfg.agents.includes("scripted")) {
     add("model server", true, "skipped: scripted self-test");
