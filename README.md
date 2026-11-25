@@ -60,3 +60,20 @@ What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1):
 - No model ran and no results row was written. The check's recall and precision are measured in P5.
 - Review round 1 (`reviews/P3c-r1.md`) found SL-P3c-r1-C1 to C4. Round 2 fixed them, added 2 tests and changed 2. `bash scripts/test.sh` then passed with 158 tests, 24 of them lane unit tests (15 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
 - Review round 2 (`reviews/P3c-r2.md`) found SL-P3c-r2-C1 and D1. Round 3 fixed them and added 1 test. `bash scripts/test.sh` then passed with 159 tests, 25 of them lane unit tests (16 in `src/check/check.test.mjs`, 9 in `src/gate/gate.test.mjs`), and `bash scripts/forge-gate.sh P3c` passed.
+
+## P4: integration
+
+P4 applied the lanes' Requests for integration (#6 to #9) to `contracts/`, added cross-lane tests, and ran a security review (`reviews/P4-security.md`).
+- **Contracts.** These are now written down: unknown-content writes (no `bytes`), `EINPROGRESS` connects, threads folded into their process, `record()`'s strace filter, options and `exit`, `parseStrace`'s `rootPid`, the extra OTLP event keys, and every span id rule.
+- **`truncate` effects** (request from #7). `truncate` and `ftruncate` are recorded with their size, and `checkRun` replays them. Without this, a write that was later truncated read as a done write.
+- **`record()` returns `root_pid`.** `join` needs it, and before P4 the caller had to guess it from `procs`.
+- **`toTargetPayload`** (requests from #8 and #9) builds the target's flat ingest body: `project_id` plus a `trace` whose `spans[]` link through `parent_id`. The harness passes the user turn and the final text. It sends nothing.
+- **Security fixes.** `record()` no longer gives the agent the harness's environment, and it refuses a trace file inside the work folder.
+- **Cross-lane tests** (`tests/integration/`). The committed fixture runs through every lane. Then real runs are recorded under strace. A scripted agent does an honest run and a silent-failure run for each of seven cases, on six real task setups (one setup has a second, truncate case). For each run, the check's label is compared with the ground truth's (the task oracle plus the claim).
+
+Known limit, found by those tests: the check sees a connect to a stub but not the HTTP status. On `sl29-notify-stub-error`, a run that got one 503 and claimed success reads as `true_success`. The trace-only baseline catches that run, but it also flags the honest run that retried past two 503s. P5 measures what this costs.
+
+What ran (2026-11-24, local Linux worktree, kernel 7.0.0, Node v24.22.1, strace 6.19, Python 3):
+- `bash scripts/test.sh` passed: 184 tests, 25 of them in `tests/integration/`.
+- `bash scripts/forge-gate.sh P4` passed. All 47 red tests are green, and the split hash matches.
+- No model ran and no results row was written.

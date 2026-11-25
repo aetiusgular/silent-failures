@@ -358,6 +358,17 @@ export function parseStrace(text, { cwd = "/", rootPid } = {}) {
       case "renameat2":
         push(r, { kind: "rename", path: abs(r.pid, str(a[1]), a[0]), path2: abs(r.pid, str(a[3]), a[2]) });
         break;
+      case "truncate":
+        // A truncate is not a write: it sets the length (P4, request from #7).
+        push(r, { kind: "truncate", path: abs(r.pid, str(a[0])), size: sizeArg(a[1]) });
+        break;
+      case "ftruncate":
+      case "ftruncate64": {
+        const f = st(r.pid).fds.get(Number.parseInt(a[0], 10));
+        if (f?.kind !== "file") break;
+        push(r, { kind: "truncate", path: f.path, size: sizeArg(a[1]) });
+        break;
+      }
       case "unlink":
       case "rmdir":
         push(r, { kind: "unlink", path: abs(r.pid, str(a[0])) });
@@ -394,6 +405,14 @@ export function parseStrace(text, { cwd = "/", rootPid } = {}) {
     }
   }
   return { effects, procs: [...procs.values()] };
+}
+
+/** A length argument (decimal, or hex as strace may print it), or null when unreadable. */
+function sizeArg(arg) {
+  const t = (arg ?? "").trim();
+  if (/^\d+$/.test(t)) return Number(t);
+  if (/^0x[0-9a-f]+$/i.test(t)) return parseInt(t, 16);
+  return null;
 }
 
 /** `{sa_family=AF_INET, sin_port=htons(P), sin_addr=inet_addr("A")}` -> "A:P"; IPv6 -> "[A]:P"; else null. */
@@ -529,14 +548,20 @@ export function costReport(samples) {
 
 export const STRACE_ARGS = ["--kill-on-exit", "-f", "-ttt", "-s", "4096", "-xx", "-e", "trace=%file,%desc,%process,%network,chdir,fchdir"];
 
+const ENV_KEEP = ["PATH", "HOME", "LANG", "LC_ALL", "TERM", "TMPDIR"];
+const minimalEnv = () => Object.fromEntries(ENV_KEEP.filter((k) => process.env[k] !== undefined).map((k) => [k, process.env[k]]));
+
 /**
- * Run argv under strace (and read the audit log if available). Returns { effects, procs, cost }.
+ * Run argv under strace (and read the audit log if available). Returns { effects, procs, root_pid, cost, exit }.
  * Not exercised by red tests (ci has no strace). opts:
  *   cwd        work folder the agent starts in (default process.cwd())
- *   env        environment for the agent (default process.env)
+ *   env        environment for the agent. Default: only PATH, HOME, LANG, LC_ALL, TERM and TMPDIR
+ *              from process.env, so the harness's own tokens never reach the agent under test
+ *              (P4 security review, SL-P4-r0-S1). Pass every other variable explicitly.
  *   auditLog   path of an audit log that holds the io_uring rule's records (read after the run, filtered to the run's pids and time)
  *   strace     strace binary (default "strace")
- *   traceFile  where strace writes (default a fresh temp folder, removed afterwards unless keepTrace)
+ *   traceFile  where strace writes (default a fresh temp folder, removed afterwards unless keepTrace).
+ *              It may not be inside cwd: the agent could rewrite its own trace (SL-P4-r0-S2).
  *   timeoutMs  kill the run after this long (default none). `--kill-on-exit` makes the kernel kill
  *              every tracee when strace dies, so no part of the agent outlives the trace.
  *   stdio      passed to spawn (default "ignore")
@@ -544,6 +569,10 @@ export const STRACE_ARGS = ["--kill-on-exit", "-f", "-ttt", "-s", "4096", "-xx",
 export async function record(argv, opts = {}) {
   if (!Array.isArray(argv) || argv.length === 0) throw new Error("record: argv must be a non-empty array");
   const cwd = opts.cwd ?? process.cwd();
+  if (opts.traceFile) {
+    const rel = posix.relative(posix.resolve(cwd), posix.resolve(cwd, opts.traceFile));
+    if (rel !== ".." && !rel.startsWith("../") && !posix.isAbsolute(rel)) throw new Error("record: traceFile must be outside cwd, where the agent cannot rewrite it");
+  }
   const dir = opts.traceFile ? null : mkdtempSync(joinPath(tmpdir(), "sl-rec-"));
   const traceFile = opts.traceFile ?? joinPath(dir, "trace.strace");
   const t0 = performance.now();
@@ -553,7 +582,7 @@ export async function record(argv, opts = {}) {
     exit = await new Promise((resolve, reject) => {
       const child = spawn(opts.strace ?? "strace", [...STRACE_ARGS, "-o", traceFile, "--", ...argv], {
         cwd,
-        env: opts.env ?? process.env,
+        env: opts.env ?? minimalEnv(),
         stdio: opts.stdio ?? "ignore",
       });
       let timer = null;
@@ -581,7 +610,10 @@ export async function record(argv, opts = {}) {
       const pids = new Set(procs.map((p) => p.pid));
       aEffects = parseAudit(readFileSync(opts.auditLog, "utf8")).filter((e) => pids.has(e.pid) && e.ts >= wall0 - 1 && e.ts <= wall1 + 1);
     }
-    return { effects: mergeEffects(sEffects, aEffects), procs, cost: { traced_ms }, exit };
+    // parseStrace puts the traced root first (the pid of the trace's first line).
+    // join() needs it, so record() returns it (P4, cross-lane seam).
+    const root_pid = procs[0]?.pid ?? null;
+    return { effects: mergeEffects(sEffects, aEffects), procs, root_pid, cost: { traced_ms }, exit };
   } finally {
     if (dir && !opts.keepTrace) rmSync(dir, { recursive: true, force: true });
   }

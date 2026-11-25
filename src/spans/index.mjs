@@ -95,6 +95,7 @@ const EVENT_FIELDS = [
   ["addr", "effect.addr"],
   ["errno", "effect.errno"],
   ["argv", "effect.argv"],
+  ["size", "effect.size"],
 ];
 
 function effectEvent(e) {
@@ -176,7 +177,7 @@ const iso = (ts) => new Date(Math.round(ts * 1000)).toISOString();
 const durationMs = (a, b) => Math.round((b - a) * 1e6) / 1e3;
 const timing = (start, end) => ({ started_at: iso(start), ended_at: iso(end), duration_ms: durationMs(start, end) });
 
-const ATTR_FIELDS = ["path", "path2", "addr", "argv"];
+const ATTR_FIELDS = ["path", "path2", "addr", "argv", "size"];
 
 function effectSpan(e, id, parentId) {
   const attributes = { "effect.ok": e.ok === true, "effect.source": e.source };
@@ -218,4 +219,38 @@ export function toTargetTrace(joined) {
   };
 
   return { id: runId, name: "invoke_agent", ...timing(range.start, range.end), spans: [...tools, unattributed] };
+}
+
+// ---- The target's ingest payload (P4, requests from #8 and #9) ------------
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * JoinedRun -> the target's ingest body: { project_id, trace: { id, name, input?,
+ * output? | error?, started_at, ended_at, duration_ms, spans: [...] } }.
+ * trace.spans is flat: the nested `spans` arrays of toTargetTrace are walked
+ * out, children keep their `parent_id`, and spans directly under the root
+ * omit it (the target attaches those under its synthetic root). The run's
+ * user turn and final text are not in a JoinedRun, so the harness passes them.
+ * Nothing is sent: sending needs a key (BUILD_OUTLINE.md section 8).
+ */
+export function toTargetPayload(joined, { projectId, input, output, error } = {}) {
+  if (typeof projectId !== "string" || !UUID.test(projectId)) throw new TypeError("spans: projectId must be a UUID string");
+  const nested = toTargetTrace(joined);
+  const flat = [];
+  const walk = (spans) => {
+    for (const sp of spans) {
+      const { spans: kids, ...rest } = sp;
+      flat.push(rest);
+      if (Array.isArray(kids)) walk(kids);
+    }
+  };
+  walk(nested.spans);
+  const { spans: _drop, ...root } = nested;
+  const trace = { ...root };
+  if (input !== undefined) trace.input = input;
+  if (error !== undefined && error !== null) Object.assign(trace, { status: "ERROR", error: String(error) });
+  else if (output !== undefined) trace.output = output;
+  trace.spans = flat;
+  return { project_id: projectId, trace };
 }

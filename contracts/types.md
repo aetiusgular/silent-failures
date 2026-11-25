@@ -1,6 +1,6 @@
 # Data shapes
 
-Written in P2. The lanes build against these. Lanes do not edit `contracts/`; changes go under "Requests for integration" (BUILD_OUTLINE.md section 1).
+Written in P2, with the P4 changes marked "(P4)". The lanes build against these. Lanes do not edit `contracts/`; changes go under "Requests for integration" (BUILD_OUTLINE.md section 1).
 
 Times are Unix epoch **seconds** as floats, rounded to the microsecond. Paths in effects are absolute. Paths in tasks are relative to the run's work folder.
 
@@ -10,24 +10,25 @@ One OS-level act, recorded outside the agent.
 
 | Field | Type | Notes |
 |---|---|---|
-| `kind` | `"open"` \| `"write"` \| `"rename"` \| `"unlink"` \| `"exec"` \| `"connect"` | |
+| `kind` | `"open"` \| `"write"` \| `"rename"` \| `"unlink"` \| `"exec"` \| `"connect"` \| `"truncate"` | `rmdir` and `unlinkat(AT_REMOVEDIR)` are `unlink`. `truncate` (P4) is `truncate` or `ftruncate`. |
 | `ts` | number | when the syscall started (for an `<unfinished ...>` call, the first half's time) |
 | `pid` | integer | |
 | `ok` | boolean | `false` when the syscall returned an error. A failed syscall is kept, but it is not an act that happened. |
 | `errno` | string | only when `ok` is false, e.g. `"ENOENT"` |
 | `source` | `"strace"` \| `"audit-io_uring"` | |
-| `path` | string | open, write (the fd's path), rename (the source), unlink, exec (the program) |
+| `path` | string | open, write (the fd's path), rename (the source), unlink, exec (the program), truncate |
 | `path2` | string | rename only: the target |
 | `flags` | string[] \| null | open only: `O_*` names. `null` when the source does not report them (io_uring audit) |
 | `created` | boolean | open from audit only: the PATH record's `nametype=CREATE` |
-| `bytes` | string | write only: the bytes written, decoded as UTF-8 from strace's `-xx` hex (strace truncates past `-s 4096`) |
+| `bytes` | string | write only: the bytes written, decoded as UTF-8 from strace's `-xx` hex (strace truncates past `-s 4096`). (P4) Absent when the kernel copied the data (`sendfile`, `copy_file_range`, `splice`): the content is **unknown**, not empty. Writes are recorded only on fds with a known file path; pipes, sockets and fds opened before the trace are not file writes. |
 | `n` | integer | write only: the return value |
 | `argv` | string[] | exec only |
-| `addr` | string | connect only: `"<ipv4>:<port>"` |
+| `addr` | string | connect only: `"<ipv4>:<port>"` or `"[<ipv6>]:<port>"`. (P4) A non-blocking connect that returns `EINPROGRESS` is `ok: true`, unless a later `getsockopt(SO_ERROR)` on the same fd reports an error; then it is `ok: false` with that errno. |
+| `size` | integer \| null | truncate only (P4): the new length, `null` when unreadable |
 
 ## Proc
 
-`{ pid, ppid, ts_start, ts_end }`. `ppid` and `ts_start` are `null` for the traced root, which existed before the trace. `ts_start` is the parent's `clone`/`fork`/`vfork` time. `ts_end` is the `+++ exited` time, or `null`.
+`{ pid, ppid, ts_start, ts_end }`. `ppid` and `ts_start` are `null` for the traced root, which existed before the trace. (P4) Threads (`CLONE_THREAD`) are folded into their thread group leader: one Proc, its pid, cwd and fd table, and every effect of the thread carries the leader's pid. `ts_start` is the parent's `clone`/`fork`/`vfork` time. `ts_end` is the `+++ exited` time, or `null`.
 
 ## ToolCall
 
